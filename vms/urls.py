@@ -16,6 +16,10 @@ Including another URLconf
 from django.conf.urls import include, url
 from django.contrib import admin
 
+from voucher import views
+
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^generate/', views.generate, name='generate'),
+    url(r'^accounts/', include('accounts.urls', namespace="accounts")),
 ]
