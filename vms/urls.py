@@ -24,5 +24,6 @@ urlpatterns = [
     url(r'^$', auth_views.login, {'template_name': 'accounts/login.html', 'authentication_form': AuthenticationForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^generate/', views.generate, name='generate'),
+    url(r'^redeem/', views.redeem, name='redeem'),
     url(r'^admin/', include(admin.site.urls)),
 ]
