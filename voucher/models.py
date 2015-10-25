@@ -16,12 +16,16 @@ class Voucher(models.Model):
     )
 
     # quantity choices
+    TWENTY = 20
+    FIFTY = 50
     HUNDRED = 100
     TWO_HUNDRED = 200
     FIVE_HUNDRED = 500
 
     QUANTITY_CHOICES = (
         ('', 'Select Quantity'),
+        (TWENTY, '20'),
+        (FIFTY, '50'),
         (HUNDRED, '100'),
         (TWO_HUNDRED, '200'),
         (FIVE_HUNDRED, '500'),
@@ -31,4 +35,3 @@ class Voucher(models.Model):
     pin = models.CharField(max_length=14)
     value = models.SmallIntegerField()
     date_created = models.DateTimeField()
-    expiry_date = models.DateTimeField()
