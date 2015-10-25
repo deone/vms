@@ -9,7 +9,9 @@ from .forms import GenerateVoucherForm
 def generate(request):
     context = {}
     if request.method == "POST":
-        pass
+        form = GenerateVoucherForm(request.POST)
+        if form.is_valid():
+            form.save()
     else:
         form = GenerateVoucherForm()
 
