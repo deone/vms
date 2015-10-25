@@ -1,5 +1,6 @@
 <form method="post" action="">
+  {% csrf_token %}
   {{ form }}
   <button type="submit">Generate</button>
 </form>
-<p><a href="{% url 'accounts:logout' %}">Logout</a></p>
+<p><a href="{% url 'logout' %}">Logout</a></p>
