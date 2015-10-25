@@ -15,11 +15,14 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.forms import AuthenticationForm
 
 from voucher import views
 
 urlpatterns = [
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^$', auth_views.login, {'template_name': 'accounts/login.html', 'authentication_form': AuthenticationForm}, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^generate/', views.generate, name='generate'),
-    url(r'^accounts/', include('accounts.urls', namespace="accounts")),
+    url(r'^admin/', include(admin.site.urls)),
 ]
