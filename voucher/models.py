@@ -35,3 +35,4 @@ class Voucher(models.Model):
     pin = models.CharField(max_length=14)
     value = models.SmallIntegerField()
     date_created = models.DateTimeField()
+    is_valid = models.BooleanField(default=True) # this can be True or False
