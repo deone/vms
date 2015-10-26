@@ -25,5 +25,6 @@ urlpatterns = [
     url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^generate/', views.generate, name='generate'),
     url(r'^redeem/', views.redeem, name='redeem'),
+    url(r'^invalidate/', views.invalidate, name='invalidate'),
     url(r'^admin/', include(admin.site.urls)),
 ]

@@ -28,7 +28,7 @@ def redeem(request):
     response = {}
 
     if request.method == 'POST':
-        pin = request.POST['pin']
+        pin = request.POST['payload']
         try:
             obj = Voucher.objects.get(pin=pin)
         except Voucher.DoesNotExist:
@@ -46,4 +46,15 @@ def redeem(request):
 @csrf_protect
 @ensure_csrf_cookie
 def invalidate(request):
-    pass
+    response = {}
+
+    if request.method == 'POST':
+        pk = request.POST['payload']
+        obj = Voucher.objects.get(pk=pk)
+        obj.is_valid = False
+        obj.save()
+        response.update({'code': 200})
+    else:
+        response.update({'status': 'ok'})
+
+    return JsonResponse(response)
