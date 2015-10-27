@@ -8,6 +8,11 @@ from .forms import GenerateVoucherForm
 from .models import Voucher
 
 # This is where we generate, download and redeem PINs.
+
+@login_required
+def dashboard(request):
+    return render(request, 'voucher/dashboard.html')
+
 @login_required
 def generate(request):
     context = {}
@@ -21,6 +26,10 @@ def generate(request):
 
     context.update({'form': form})
     return render(request, 'voucher/generate.html', context)
+
+@login_required
+def download(request):
+    pass
 
 @csrf_protect
 @ensure_csrf_cookie

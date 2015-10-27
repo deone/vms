@@ -109,6 +109,6 @@ STATIC_URL = '/static/'
 
 ###############################
 
-LOGIN_REDIRECT_URL = 'generate'
+LOGIN_REDIRECT_URL = 'dashboard'
 
 from .user_settings import *
