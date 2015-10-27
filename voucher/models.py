@@ -5,6 +5,7 @@ class Batch(models.Model):
     value = models.SmallIntegerField()
     quantity = models.SmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
+    is_downloaded = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s %s %s" % (self.date_created.strftime('%B %d %Y, %I:%M%p'), str(self.value), str(self.quantity))
