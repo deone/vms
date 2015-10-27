@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 class Batch(models.Model):
-    value = models.SmallIntegerField()
-    quantity = models.SmallIntegerField()
+    value = models.PositiveSmallIntegerField()
+    quantity = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
     is_downloaded = models.BooleanField(default=False)
 
@@ -43,7 +43,7 @@ class Voucher(models.Model):
 
     # Use id as serial number
     pin = models.CharField(max_length=14)
-    value = models.SmallIntegerField()
+    value = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True) # this can be True or False
     batch = models.ForeignKey(Batch)
