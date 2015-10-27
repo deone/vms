@@ -1,11 +1,14 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.generic import ListView
 
 from .forms import GenerateVoucherForm
-from .models import Voucher
+
+from .models import Voucher, Batch
 
 # This is where we generate, download and redeem PINs.
 
@@ -26,6 +29,17 @@ def generate(request):
 
     context.update({'form': form})
     return render(request, 'voucher/generate.html', context)
+
+class BatchList(ListView):
+    template_name = 'voucher/batch_list.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(BatchList, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        batches = Batch.objects.all()
+        return render(request, self.template_name, {'batches': batches})
 
 @login_required
 def download(request):
