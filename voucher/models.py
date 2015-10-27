@@ -1,4 +1,13 @@
 from django.db import models
+from django.utils import timezone
+
+class Batch(models.Model):
+    value = models.SmallIntegerField()
+    quantity = models.SmallIntegerField()
+    date_created = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return "%s %s %s" % (self.date_created.strftime('%B %d %Y, %I:%M%p'), str(self.value), str(self.quantity))
 
 class Voucher(models.Model):
     UNIT = 'GHS'
@@ -36,3 +45,4 @@ class Voucher(models.Model):
     value = models.SmallIntegerField()
     date_created = models.DateTimeField()
     is_valid = models.BooleanField(default=True) # this can be True or False
+    batch = models.ForeignKey(Batch)

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Voucher
+from .models import Voucher, Batch
 from .helpers import generate_vouchers
 
 class GenerateVoucherForm(forms.Form):
@@ -11,4 +11,5 @@ class GenerateVoucherForm(forms.Form):
         price = self.cleaned_data['price']
         quantity = self.cleaned_data['quantity']
 
-        generate_vouchers(price, quantity)
+        batch = Batch.objects.create(value=price, quantity=quantity)
+        generate_vouchers(price, quantity, batch)
