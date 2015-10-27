@@ -1,14 +1,14 @@
 from django.shortcuts import render
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic import ListView
 
 from .forms import GenerateVoucherForm
-
 from .models import Voucher, Batch
+from .helpers import write_batch
 
 # This is where we generate, download and redeem PINs.
 
@@ -41,9 +41,22 @@ class BatchList(ListView):
         batches = Batch.objects.all()
         return render(request, self.template_name, {'batches': batches})
 
+def file_generator(_file):
+    with open(_file.name, 'r') as f:
+        for line in f:
+            yield line
+
 @login_required
-def download(request):
-    pass
+def download(request, pk):
+    batch = Batch.objects.get(pk=pk)
+    _file, file_name = write_batch(batch)
+
+    batch.is_downloaded = True
+    batch.save()
+
+    response = HttpResponse(file_generator(_file), content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
+    return response
 
 @csrf_protect
 @ensure_csrf_cookie

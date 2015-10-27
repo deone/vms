@@ -1,5 +1,23 @@
+{% if messages %}
+<ul class="messages">
+  {% for message in messages %}
+  <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+  {% endfor %}
+</ul>
+{% endif %}
+
 <ul>
 {% for batch in batches %}
-  <li>{{ batch }}</li>
+  <li>
+    <form action="{% url 'download' pk=batch.pk %}" method="post">
+      {% csrf_token %}
+      {{ batch }}
+      {% if batch.is_downloaded %}
+        <button type="submit" disabled>Downloaded</button>
+      {% else %}
+        <button type="submit">Download</button>
+      {% endif %}
+    </form>
+  </li>
 {% endfor %}
 </ul>

@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^generate_vouchers/', views.generate, name='generate_vouchers'),
     url(r'^view_batches/', views.BatchList.as_view(), name='view_batches'),
     url(r'^redeem/', views.redeem, name='redeem'),
+    url(r'^download/(?P<pk>\d+)/$', views.download, name='download'),
     url(r'^invalidate/', views.invalidate, name='invalidate'),
     url(r'^admin/', include(admin.site.urls)),
 ]
