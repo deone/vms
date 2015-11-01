@@ -9,7 +9,7 @@
 <ul>
 {% for batch in batches %}
   <li>
-    <form action="{% url 'download' pk=batch.pk %}" method="post">
+    <form action="{% url 'vouchers:download' pk=batch.pk %}" method="post">
       {% csrf_token %}
       {{ batch }}
       {% if batch.is_downloaded %}

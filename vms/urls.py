@@ -18,16 +18,12 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import AuthenticationForm
 
-from voucher import views
+from vouchers import views
 
 urlpatterns = [
     url(r'^$', auth_views.login, {'template_name': 'accounts/login.html', 'authentication_form': AuthenticationForm}, name='login'),
     url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^dashboard/', views.dashboard, name='dashboard'),
-    url(r'^generate_vouchers/', views.generate, name='generate_vouchers'),
-    url(r'^view_batches/', views.BatchList.as_view(), name='view_batches'),
-    url(r'^redeem/', views.redeem, name='redeem'),
-    url(r'^download/(?P<pk>\d+)/$', views.download, name='download'),
-    url(r'^invalidate/', views.invalidate, name='invalidate'),
+    url(r'^vouchers/', include('vouchers.urls', namespace="vouchers")),
     url(r'^admin/', include(admin.site.urls)),
 ]

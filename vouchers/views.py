@@ -14,7 +14,7 @@ from .helpers import write_batch
 
 @login_required
 def dashboard(request):
-    return render(request, 'voucher/dashboard.html')
+    return render(request, 'vouchers/dashboard.html')
 
 @login_required
 def generate(request):
@@ -28,10 +28,10 @@ def generate(request):
         form = GenerateVoucherForm()
 
     context.update({'form': form})
-    return render(request, 'voucher/generate.html', context)
+    return render(request, 'vouchers/generate.html', context)
 
 class BatchList(ListView):
-    template_name = 'voucher/batch_list.html'
+    template_name = 'vouchers/batch_list.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -66,14 +66,14 @@ def redeem(request):
     if request.method == 'POST':
         pin = request.POST['payload']
         try:
-            obj = Voucher.objects.get(pin=pin)
+            voucher = Voucher.objects.get(pin=pin)
         except Voucher.DoesNotExist:
-            response.update({'code': 404})
+            response.update({'code': 404, 'message': 'Voucher does not exist.'})
         else:
-            if not obj.is_valid:
-                response.update({'code': 0})
+            if not voucher.is_valid:
+                response.update({'code': 500, 'message': 'Voucher has been used.'})
             else:
-                response.update({'code': 200, 'value': obj.value, 'serial_number': obj.pk})
+                response.update({'code': 200, 'value': voucher.value, 'serial_number': voucher.pk})
     else:
         response.update({'status': 'ok'})
 
@@ -86,10 +86,14 @@ def invalidate(request):
 
     if request.method == 'POST':
         pk = request.POST['payload']
-        obj = Voucher.objects.get(pk=pk)
-        obj.is_valid = False
-        obj.save()
-        response.update({'code': 200})
+        try:
+            voucher = Voucher.objects.get(pk=pk)
+        except Voucher.DoesNotExist:
+            response.update({'code': 404, 'message': 'Voucher does not exist.'})
+        else:
+            voucher.is_valid = False
+            voucher.save()
+            response.update({'code': 200})
     else:
         response.update({'status': 'ok'})
 
