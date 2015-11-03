@@ -72,5 +72,8 @@ class DownloadTest(ViewsTests):
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
-        self.assertTrue(response.get('Content-Disposition').startswith('attachment; filename="03-11-2015_'))
+        self.assertEqual(response.get('Content-Type'), 'text/csv')
         self.assertTrue('0000000002' in response.content)
+
+class RedeemTests(ViewsTests):
+    pass
