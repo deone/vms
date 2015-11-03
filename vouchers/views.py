@@ -10,8 +10,6 @@ from .forms import GenerateVoucherForm
 from .models import Voucher, Batch
 from .helpers import write_batch
 
-# This is where we generate, download and redeem PINs.
-
 @login_required
 def dashboard(request):
     return render(request, 'vouchers/dashboard.html')
@@ -64,7 +62,7 @@ def redeem(request):
     response = {}
 
     if request.method == 'POST':
-        pin = request.POST['payload']
+        pin = request.POST['pin']
         try:
             voucher = Voucher.objects.get(pin=pin)
         except Voucher.DoesNotExist:
@@ -85,7 +83,7 @@ def invalidate(request):
     response = {}
 
     if request.method == 'POST':
-        pk = request.POST['payload']
+        pk = request.POST['id']
         try:
             voucher = Voucher.objects.get(pk=pk)
         except Voucher.DoesNotExist:
@@ -94,6 +92,39 @@ def invalidate(request):
             voucher.is_valid = False
             voucher.save()
             response.update({'code': 200})
+    else:
+        response.update({'status': 'ok'})
+
+    return JsonResponse(response)
+
+@csrf_protect
+@ensure_csrf_cookie
+def insert_stub(request):
+    """ This function is strictly for testing the API. """
+    response = {}
+    if request.method == 'POST':
+        pin = request.POST['pin']
+        value = 5
+
+        batch = Batch.objects.create(value=value, quantity=1)
+        voucher = Voucher.objects.create(pin=pin, value=value, batch=batch)
+        response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
+    else:
+        response.update({'status': 'ok'})
+
+    return JsonResponse(response)
+
+@csrf_protect
+@ensure_csrf_cookie
+def delete_stub(request):
+    """ This function is strictly for testing the API. """
+    response = {}
+    if request.method == 'POST':
+        pin = request.POST['pin']
+        voucher = Voucher.objects.get(pin=pin)
+        voucher.batch.delete()
+        voucher.delete()
+        response.update({'code': 200})
     else:
         response.update({'status': 'ok'})
 

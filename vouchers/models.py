@@ -47,3 +47,6 @@ class Voucher(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True) # this can be True or False
     batch = models.ForeignKey(Batch)
+
+    def __str__(self):
+        return '%s %s GHS' % (self.pk, self.value)
