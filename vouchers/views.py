@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
@@ -9,10 +9,6 @@ from django.contrib.auth.decorators import login_required
 from .forms import GenerateVoucherForm
 from .models import Voucher, Batch
 from .helpers import write_batch
-
-@login_required
-def dashboard(request):
-    return render(request, 'vouchers/dashboard.html')
 
 @login_required
 def generate(request):
@@ -56,7 +52,6 @@ def download(request, pk):
     response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
     return response
 
-@csrf_protect
 @ensure_csrf_cookie
 def redeem(request):
     response = {}
@@ -77,7 +72,6 @@ def redeem(request):
 
     return JsonResponse(response)
 
-@csrf_protect
 @ensure_csrf_cookie
 def invalidate(request):
     response = {}
@@ -97,7 +91,6 @@ def invalidate(request):
 
     return JsonResponse(response)
 
-@csrf_protect
 @ensure_csrf_cookie
 def insert_stub(request):
     """ This function is strictly for testing the API. """
@@ -114,7 +107,6 @@ def insert_stub(request):
 
     return JsonResponse(response)
 
-@csrf_protect
 @ensure_csrf_cookie
 def delete_stub(request):
     """ This function is strictly for testing the API. """
