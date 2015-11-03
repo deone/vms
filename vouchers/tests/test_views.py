@@ -51,3 +51,11 @@ class GenerateTests(ViewsTests):
         self.assertEqual(response.status_code, 302)
         self.assertEqual('Vouchers generated successfully.', lst[0].__str__())
         self.assertEqual(response.get('location'), reverse('vouchers:generate'))
+
+class BatchListTest(ViewsTests):
+
+    def test_get(self):
+        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+        response = self.c.get(reverse('vouchers:batches'))
+        self.assertTrue('batches' in response.context)
+        self.assertTemplateUsed(response, 'vouchers/batch_list.html')
