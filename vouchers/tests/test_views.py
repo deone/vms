@@ -9,6 +9,8 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 
 from ..forms import GenerateVoucherForm
 from ..views import generate
+from ..models import Batch
+from ..helpers import generate_vouchers
 
 class ViewsTests(TestCase):
 
@@ -59,3 +61,16 @@ class BatchListTest(ViewsTests):
         response = self.c.get(reverse('vouchers:batches'))
         self.assertTrue('batches' in response.context)
         self.assertTemplateUsed(response, 'vouchers/batch_list.html')
+
+class DownloadTest(ViewsTests):
+
+    def test_download(self):
+        price = 1
+        quantity = 5
+        batch = Batch.objects.create(value=price, quantity=quantity)
+        generate_vouchers(price, quantity, batch)
+
+        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+        response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
+        self.assertTrue(response.get('Content-Disposition').startswith('attachment; filename="03-11-2015_'))
+        self.assertTrue('0000000002' in response.content)
