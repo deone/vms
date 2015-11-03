@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.generic import ListView
@@ -18,6 +18,7 @@ def generate(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Vouchers generated successfully.')
+            return redirect('vouchers:generate')
     else:
         form = GenerateVoucherForm()
 
