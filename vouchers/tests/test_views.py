@@ -13,6 +13,7 @@ from ..models import Batch
 from ..helpers import generate_vouchers
 
 import json
+import os
 
 class ViewsTests(TestCase):
 
@@ -70,7 +71,15 @@ class ViewsTests(TestCase):
         response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
 
         self.assertEqual(response['Content-Type'], 'text/csv')
-        self.assertTrue('0000000002' in response.content)
+        self.assertNotEqual(response.content, '')
+
+class APITests(TestCase):
+
+    def setUp(self):
+        # Create stub
+        self.c = Client()
+        self.data = {'pin': 12345678901234}
+        self.voucher = self.c.post(reverse('vouchers:insert'), data=self.data)
 
     def test_redeem_get(self):
         response = self.c.get(reverse('vouchers:redeem'))
@@ -80,17 +89,23 @@ class ViewsTests(TestCase):
         self.assertEqual(value['status'], 'ok')
 
     def test_redeem_post(self):
-        data = {'pin': 12345678901234}
-
-        # Create stub
-        self.c.post(reverse('vouchers:insert'), data=data)
-
         # Write tests
-        response = self.c.post(reverse('vouchers:redeem'), data=data)
+        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
         value = json.loads(response.content)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(value['code'], 200)
 
+    def test_redeem_voucher_does_not_exist(self):
+        response = self.c.post(reverse('vouchers:redeem'), data={'pin': 12345678901231})
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 404)
+
+    def test_redeem_used_voucher(self):
+        pass
+
+    def tearDown(self):
         # Delete stub
-        self.c.post(reverse('vouchers:delete'), data=data)
+        self.c.post(reverse('vouchers:delete'), data=self.data)
