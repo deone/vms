@@ -79,7 +79,7 @@ class APITests(TestCase):
         # Create stub
         self.c = Client()
         self.data = {'pin': 12345678901234}
-        self.voucher = self.c.post(reverse('vouchers:insert'), data=self.data)
+        self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
 
     def test_redeem_get(self):
         response = self.c.get(reverse('vouchers:redeem'))
@@ -104,7 +104,15 @@ class APITests(TestCase):
         self.assertEqual(value['code'], 404)
 
     def test_redeem_used_voucher(self):
-        pass
+        # Invalidate
+        self.c.post(reverse('vouchers:invalidate'), data={'id': self.voucher['id']})
+
+        # Test
+        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 500)
 
     def tearDown(self):
         # Delete stub
