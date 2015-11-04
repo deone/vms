@@ -79,14 +79,10 @@ def invalidate(request):
 
     if request.method == 'POST':
         pk = request.POST['id']
-        try:
-            voucher = Voucher.objects.get(pk=pk)
-        except Voucher.DoesNotExist:
-            response.update({'code': 404, 'message': 'Voucher does not exist.'})
-        else:
-            voucher.is_valid = False
-            voucher.save()
-            response.update({'code': 200})
+        voucher = Voucher.objects.get(pk=pk)
+        voucher.is_valid = False
+        voucher.save()
+        response.update({'code': 200})
     else:
         response.update({'status': 'ok'})
 

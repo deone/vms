@@ -81,12 +81,27 @@ class APITests(TestCase):
         self.data = {'pin': 12345678901234}
         self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
 
-    def test_redeem_get(self):
-        response = self.c.get(reverse('vouchers:redeem'))
+    def check_response(self, response):
         value = json.loads(response.content)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(value['status'], 'ok')
+
+    def test_redeem_get(self):
+        response = self.c.get(reverse('vouchers:redeem'))
+        self.check_response(response)
+
+    def test_invalidate_get(self):
+        response = self.c.get(reverse('vouchers:invalidate'))
+        self.check_response(response)
+
+    def test_insert_stub_get(self):
+        response = self.c.get(reverse('vouchers:insert'))
+        self.check_response(response)
+
+    def test_delete_stub_get(self):
+        response = self.c.get(reverse('vouchers:delete'))
+        self.check_response(response)
 
     def test_redeem_post(self):
         # Write tests
