@@ -12,13 +12,13 @@ from ..views import generate
 from ..models import Batch
 from ..helpers import generate_vouchers
 
+import json
+
 class ViewsTests(TestCase):
 
     def setUp(self):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-
-class GenerateTests(ViewsTests):
 
     def test_generate_get(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
@@ -54,15 +54,11 @@ class GenerateTests(ViewsTests):
         self.assertEqual('Vouchers generated successfully.', lst[0].__str__())
         self.assertEqual(response.get('location'), reverse('vouchers:generate'))
 
-class BatchListTest(ViewsTests):
-
-    def test_get(self):
+    def test_batch_list_get(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:batches'))
         self.assertTrue('batches' in response.context)
         self.assertTemplateUsed(response, 'vouchers/batch_list.html')
-
-class DownloadTest(ViewsTests):
 
     def test_download(self):
         price = 1
@@ -72,8 +68,29 @@ class DownloadTest(ViewsTests):
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
-        self.assertEqual(response.get('Content-Type'), 'text/csv')
+
+        self.assertEqual(response['Content-Type'], 'text/csv')
         self.assertTrue('0000000002' in response.content)
 
-class RedeemTests(ViewsTests):
-    pass
+    def test_redeem_get(self):
+        response = self.c.get(reverse('vouchers:redeem'))
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['status'], 'ok')
+
+    def test_redeem_post(self):
+        data = {'pin': 12345678901234}
+
+        # Create stub
+        self.c.post(reverse('vouchers:insert'), data=data)
+
+        # Write tests
+        response = self.c.post(reverse('vouchers:redeem'), data=data)
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 200)
+
+        # Delete stub
+        self.c.post(reverse('vouchers:delete'), data=data)
