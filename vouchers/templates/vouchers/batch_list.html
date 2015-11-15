@@ -1,3 +1,16 @@
+{% extends 'base.html' %}
+
+{% block nav_items %}
+<ul class="nav navbar-nav">
+  <li class="active"><a href="{% url 'vouchers:batches' %}">Voucher Batches <span class="sr-only">(current)</span></a></li>
+  <li><a href="{% url 'vouchers:generate' %}">Generate Vouchers</a></li>
+</ul>
+<ul class="nav navbar-nav navbar-right">
+  <li><a href="{% url 'logout' %}">Logout</a></li>
+</ul>
+{% endblock %}
+
+{% block app_body %}
 {% if messages %}
 <ul class="messages">
   {% for message in messages %}
@@ -21,3 +34,4 @@
   </li>
 {% endfor %}
 </ul>
+{% endblock %}
