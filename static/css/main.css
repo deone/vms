@@ -1,12 +1,13 @@
 body {
-  background-color: #f8f8f8;
+  /* background-color: #f8f8f8; */
 }
 
 /* Header */
 .header {
-  height: 90px;
+  /* height: 90px; */
   border: none;
   border-radius: 0;
+  margin-bottom: 0;
 }
 .header img, .header h1 {
   display: inline-block;
@@ -17,9 +18,12 @@ body {
   vertical-align: bottom;
   font-size: 120%;
 }
+.header .navbar-brand {
+  color: #000;
+}
 
 /* Forms */
-.login-form {
+.login-form, .generate-voucher-form {
   width: 30%;
   margin: 0 auto;
   margin-top: 7em;
@@ -30,4 +34,19 @@ body {
   list-style: none;
   color: #f00;
   font-size: 90%;
+}
+
+/* Messages */
+.messages, .messages li {
+  margin: 0;
+  padding: 0;
+  color: green;
+}
+.messages {
+  list-style: none;
+  background: #e7e7e7;
+  font-weight: bold;
+}
+.messages li {
+  padding: .5em 0 .5em .5em;
 }
