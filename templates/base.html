@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
   <head>
-    <title>Spectra Wireless VMS &mdash; {% block title %}Log In{% endblock %}</title>
+    <title>Spectra Wireless VMS &mdash; {% block title %}{% endblock %}</title>
     {% load staticfiles %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
@@ -20,16 +20,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="#">
+          <!-- <a class="navbar-brand" href="{% url 'login' %}">
             <img alt="Spectra Wireless" src="{% static 'images/spectra_logo.png' %}">
-            <h1 style="display: inline-block;">Voucher Management System</h1>
-          </a>
+            <h1>Voucher Management System</h1>
+          </a> -->
+          <a class="navbar-brand" href="{% url 'login' %}">Spectra Wireless VMS</a>
         </div>
 
-        {% block nav_items %}
         <div class="collapse navbar-collapse" id="vms-navbar-collapse">
-        </div>
+        {% block nav_items %}
         {% endblock %}
+        </div>
 
       </div>
     </nav>
