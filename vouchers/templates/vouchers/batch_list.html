@@ -15,6 +15,8 @@
 {% endblock %}
 
 {% block app_body %}
+
+<!-- Remove this -->
 {% if messages %}
 <ul class="messages">
   {% for message in messages %}
@@ -22,20 +24,35 @@
   {% endfor %}
 </ul>
 {% endif %}
+<!-- -->
 
-<ul>
-{% for batch in batches %}
-  <li>
-    <form action="{% url 'vouchers:download' pk=batch.pk %}" method="post">
-      {% csrf_token %}
-      {{ batch }}
-      {% if batch.is_downloaded %}
-        <button type="submit" disabled>Downloaded</button>
-      {% else %}
-        <button type="submit">Download</button>
-      {% endif %}
-    </form>
-  </li>
-{% endfor %}
-</ul>
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Date/Time Created</th>
+      <th scope="col">Value (GHS)</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Download Status</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for batch in batches %}
+  <tr>
+    <td>{{ batch.date_created }}</td>
+    <td>{{ batch.value }}</td>
+    <td>{{ batch.quantity }}</td>
+    <td>
+      <form action="{% url 'vouchers:download' pk=batch.pk %}" method="post">
+        {% csrf_token %}
+        {% if batch.is_downloaded %}
+          <button type="submit" class="btn btn-xs btn-primary" disabled>Downloaded</button>
+        {% else %}
+          <button type="submit" class="btn btn-xs btn-primary">Download</button>
+        {% endif %}
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

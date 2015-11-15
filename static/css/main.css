@@ -9,7 +9,8 @@ body {
   border-radius: 0;
   margin-bottom: 0;
 }
-.header img, .header h1 {
+.header img,
+.header h1 {
   display: inline-block;
 }
 .header h1 {
@@ -23,12 +24,14 @@ body {
 }
 
 /* Forms */
-.login-form, .generate-voucher-form {
+.login-form,
+.generate-voucher-form {
   width: 30%;
   margin: 0 auto;
   margin-top: 7em;
 }
-.errorlist, .errorlist li {
+.errorlist,
+.errorlist li {
   margin: 0;
   padding: 0;
   list-style: none;
@@ -37,7 +40,8 @@ body {
 }
 
 /* Messages */
-.messages, .messages li {
+.messages,
+.messages li {
   margin: 0;
   padding: 0;
   color: green;
