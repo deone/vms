@@ -2,6 +2,11 @@ body {
   /* background-color: #f8f8f8; */
 }
 
+/* Main */
+.main {
+  margin-top: 2.5em;
+}
+
 /* Header */
 .header {
   /* height: 90px; */
@@ -28,7 +33,6 @@ body {
 .generate-voucher-form {
   width: 30%;
   margin: 0 auto;
-  margin-top: 7em;
 }
 .errorlist,
 .errorlist li {

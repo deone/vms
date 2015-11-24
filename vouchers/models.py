@@ -50,3 +50,8 @@ class Voucher(models.Model):
 
     def __str__(self):
         return '%s %s GHS' % (self.pk, self.value)
+
+class Vend(models.Model):
+    vendor_id = models.PositiveSmallIntegerField()
+    voucher = models.ForeignKey(Voucher)
+    date_of_vend = models.DateTimeField(default=timezone.now)
