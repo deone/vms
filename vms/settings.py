@@ -116,4 +116,8 @@ LOGIN_URL = 'login'
 
 LOGIN_REDIRECT_URL = 'vouchers:batches'
 
-from .user_settings import *
+STATIC_ROOT = os.path.join(BASE_DIR, "static_live")
+
+PIN_LENGTH = 14
+
+VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
