@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 from .forms import GenerateVoucherForm
-from .models import Voucher, Batch
-from .helpers import write_batch
+from .models import *
+from .helpers import write_batch, zeropad
 
 @login_required
 def generate(request):
@@ -54,6 +54,27 @@ def download(request, pk):
     return response
 
 @ensure_csrf_cookie
+def fetch(request):
+    response = {}
+    if request.method == 'POST':
+        vendor_id = request.POST['vendor_id']
+        value = request.POST['value']
+        quantity = request.POST['quantity']
+        vouchers = Voucher.objects.filter(value=value)[:quantity]
+
+        voucher_list = []
+        for v in vouchers:
+            Vend.objects.create(vendor_id=vendor_id, voucher=v)
+            voucher_list.append(zeropad(v.pk), v.pin)
+            v.is_sold = True
+            v.save()
+        response.update({'code': 200, 'results': voucher_list})
+    else:
+        response.update({'status': 'ok'})
+
+    return JsonResponse(response)
+
+@ensure_csrf_cookie
 def redeem(request):
     response = {}
 
@@ -64,10 +85,13 @@ def redeem(request):
         except Voucher.DoesNotExist:
             response.update({'code': 404, 'message': 'Voucher does not exist.'})
         else:
-            if not voucher.is_valid:
-                response.update({'code': 500, 'message': 'Voucher has been used.'})
+            if voucher.is_sold:
+                if not voucher.is_valid:
+                    response.update({'code': 500, 'message': 'Voucher has been used.'})
+                else:
+                    response.update({'code': 200, 'value': voucher.value, 'serial_number': voucher.pk})
             else:
-                response.update({'code': 200, 'value': voucher.value, 'serial_number': voucher.pk})
+                response.update({'code': 500, 'message': 'You cannot use this voucher. It has not been sold.'})
     else:
         response.update({'status': 'ok'})
 
