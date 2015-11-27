@@ -46,6 +46,7 @@ class Voucher(models.Model):
     value = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True) # this can be True or False
+    is_sold = models.BooleanField(default=False)
     batch = models.ForeignKey(Batch)
 
     def __str__(self):
