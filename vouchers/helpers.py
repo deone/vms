@@ -22,8 +22,13 @@ def write_batch(batch):
     _file = settings.VOUCHER_DOWNLOAD_PATH + '/' + file_name
     vouchers = Voucher.objects.filter(batch=batch)
 
-    for v in vouchers:
+    f = write_vouchers(vouchers, _file)
+
+    return (f, file_name)
+
+def write_vouchers(voucher_list, _file):
+    for v in voucher_list:
         with open(_file, 'a') as f:
             f.write(zeropad(v.pk) + ',' + v.pin + '\n')
 
-    return (f, file_name)
+    return f

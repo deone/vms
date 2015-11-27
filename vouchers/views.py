@@ -41,6 +41,13 @@ def file_generator(_file):
         for line in f:
             yield line
 
+@ensure_csrf_cookie
+def values(request):
+    response = {}
+    values = set(a.value for a in Voucher.objects.filter(is_sold=False))
+    response.update({'code': 200, 'results': list(values)})
+    return JsonResponse(response)
+
 @login_required
 def download(request, pk):
     batch = Batch.objects.get(pk=pk)
@@ -60,12 +67,12 @@ def fetch(request):
         vendor_id = request.POST['vendor_id']
         value = request.POST['value']
         quantity = request.POST['quantity']
-        vouchers = Voucher.objects.filter(value=value)[:quantity]
+        vouchers = Voucher.objects.filter(value=value).exclude(is_sold=True)[:quantity]
 
         voucher_list = []
         for v in vouchers:
             Vend.objects.create(vendor_id=vendor_id, voucher=v)
-            voucher_list.append(zeropad(v.pk), v.pin)
+            voucher_list.append([zeropad(v.pk), v.pin])
             v.is_sold = True
             v.save()
         response.update({'code': 200, 'results': voucher_list})

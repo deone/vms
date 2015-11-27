@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^redeem/$', views.redeem, name='redeem'),
     url(r'^invalidate/', views.invalidate, name='invalidate'),
     url(r'^fetch/', views.fetch, name='fetch'),
+    url(r'^values/', views.values, name='values'),
 ]
