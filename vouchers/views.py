@@ -6,24 +6,23 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import GenerateStandardVoucherForm
 from .models import *
 from .helpers import write_batch, zeropad
 
 @login_required
-def generate(request):
+def generate(request, template=None, voucher_form=None, redirect_to=None):
     context = {}
     if request.method == "POST":
-        form = GenerateStandardVoucherForm(request.POST)
+        form = voucher_form(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Vouchers generated successfully.')
-            return redirect('vouchers:generate-standard')
+            return redirect(redirect_to)
     else:
-        form = GenerateStandardVoucherForm()
+        form = voucher_form()
 
     context.update({'form': form})
-    return render(request, 'vouchers/generate_standard.html', context)
+    return render(request, template, context)
 
 class BatchList(ListView):
     template_name = 'vouchers/batch_list.html'
