@@ -18,12 +18,12 @@ def generate(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'Vouchers generated successfully.')
-            return redirect('vouchers:generate')
+            return redirect('vouchers:generate-standard')
     else:
         form = GenerateStandardVoucherForm()
 
     context.update({'form': form})
-    return render(request, 'vouchers/generate.html', context)
+    return render(request, 'vouchers/generate_standard.html', context)
 
 class BatchList(ListView):
     template_name = 'vouchers/batch_list.html'
