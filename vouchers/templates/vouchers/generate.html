@@ -2,10 +2,8 @@
 
 {% block title %}Generate Vouchers{% endblock %}
 
-{% block links %}
-  <li><a href="{% url 'vouchers:batches' %}">Voucher Batches</a></li>
-  <li class="active"><a href="{% url 'vouchers:generate' %}">Generate Vouchers <span class="sr-only">(current)</span></a></li>
-{% endblock %}
+{% block voucher_batches %}<li>{% endblock %}
+{% block generate_vouchers %}<li class="dropdown active">{% endblock %}
 
 {% block app_body %}
 <div class="row main">
