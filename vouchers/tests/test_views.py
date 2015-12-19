@@ -7,7 +7,7 @@ from django.contrib.messages import get_messages
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.messages.storage.fallback import FallbackStorage
 
-from ..forms import GenerateVoucherForm
+from ..forms import GenerateStandardVoucherForm
 from ..views import generate
 from ..models import Batch
 from ..helpers import generate_vouchers
@@ -26,7 +26,7 @@ class ViewsTests(TestCase):
         response = self.c.get(reverse('vouchers:generate'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
-        self.assertTrue(isinstance(response.context['form'], GenerateVoucherForm))
+        self.assertTrue(isinstance(response.context['form'], GenerateStandardVoucherForm))
         self.assertTemplateUsed(response, 'vouchers/generate.html')
 
     def test_generate_post(self):

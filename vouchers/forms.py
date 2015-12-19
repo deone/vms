@@ -3,7 +3,7 @@ from django import forms
 from .models import Voucher, Batch
 from .helpers import generate_vouchers
 
-class GenerateVoucherForm(forms.Form):
+class GenerateStandardVoucherForm(forms.Form):
     price = forms.ChoiceField(label='Price', choices=Voucher.PRICE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
     quantity = forms.ChoiceField(label='Quantity', choices=Voucher.QUANTITY_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
@@ -13,3 +13,6 @@ class GenerateVoucherForm(forms.Form):
 
         batch = Batch.objects.create(value=price, quantity=quantity)
         generate_vouchers(price, quantity, batch)
+
+class GenerateInstantConnectVoucher(forms.Form):
+    pass

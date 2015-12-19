@@ -6,7 +6,7 @@ from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-from .forms import GenerateVoucherForm
+from .forms import GenerateStandardVoucherForm
 from .models import *
 from .helpers import write_batch, zeropad
 
@@ -14,13 +14,13 @@ from .helpers import write_batch, zeropad
 def generate(request):
     context = {}
     if request.method == "POST":
-        form = GenerateVoucherForm(request.POST)
+        form = GenerateStandardVoucherForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Vouchers generated successfully.')
             return redirect('vouchers:generate')
     else:
-        form = GenerateVoucherForm()
+        form = GenerateStandardVoucherForm()
 
     context.update({'form': form})
     return render(request, 'vouchers/generate.html', context)
