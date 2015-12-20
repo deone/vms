@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 
 from .models import *
 from .helpers import write_batch, zeropad
+from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
 @login_required
 def generate(request, template=None, voucher_form=None, redirect_to=None):
