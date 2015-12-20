@@ -24,6 +24,6 @@ urlpatterns = [
     url(r'^delete/$', views.delete_stub, name='delete'),
     url(r'^redeem/$', views.redeem, name='redeem'),
     url(r'^invalidate/', views.invalidate, name='invalidate'),
-    url(r'^fetch/', views.fetch, name='fetch'),
-    url(r'^values/', views.values, name='values'),
+    url(r'^fetch/', views.fetch_vouchers, name='fetch_vouchers'),
+    url(r'^values/', views.voucher_values, name='voucher_values'),
 ]
