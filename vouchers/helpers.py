@@ -3,7 +3,7 @@ from django.conf import settings
 import random
 import string
 
-from .models import Voucher
+from .models import VoucherStandard
 
 def generate_vouchers(price, quantity, batch):
     chars = string.digits
