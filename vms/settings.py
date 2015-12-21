@@ -127,3 +127,7 @@ BILLING_URL = "http://localhost:8000/"
 PACKAGES_URL = BILLING_URL + "packages/"
 
 DOMAIN = 'spectrawireless.com'
+
+USERNAME_LENGTH = 4
+
+PASSWORD_LENGTH = 6
