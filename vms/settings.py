@@ -126,6 +126,8 @@ BILLING_URL = "http://localhost:8000/"
 
 PACKAGES_URL = BILLING_URL + "packages/"
 
+INSTANT_VOUCHER_INSERT_URL = BILLING_URL + "insert_vouchers/"
+
 DOMAIN = 'spectrawireless.com'
 
 USERNAME_LENGTH = 4

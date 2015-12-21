@@ -39,6 +39,4 @@ class GenerateInstantVoucherForm(Common):
         price = packages_dict[int(package_id)].split(' ')[3]
 
         batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='INS')
-        generate_instant_vouchers(price, quantity, batch)
-
-        # This is where we insert generated username, password into radius database - Radcheck. Also insert package.
+        generate_instant_vouchers(price, quantity, batch, package_id)

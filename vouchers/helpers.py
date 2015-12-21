@@ -5,14 +5,30 @@ from .models import VoucherStandard, VoucherInstant
 import random
 import string
 
+import requests
+
+def send_api_request(url, data):
+    get_response = requests.get(url)
+    post_response = requests.post(
+          url,
+          data=data,
+          headers={"X-CSRFToken": get_response.cookies['csrftoken']},
+          cookies=get_response.cookies
+        )
+
+    return post_response.json()
+
 def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))
 
-def generate_instant_vouchers(price, quantity, batch):
+def generate_instant_vouchers(price, quantity, batch, package_id):
     for i in range(int(quantity)):
-        username = id_generator(size=settings.USERNAME_LENGTH, chars=string.ascii_lowercase) + '@spectrawireless.com'
+        username = id_generator(size=settings.USERNAME_LENGTH, chars=string.ascii_lowercase) + '@' + settings.DOMAIN
         password = id_generator(size=settings.PASSWORD_LENGTH)
         VoucherInstant.objects.create(username=username, password=password, value=price, batch=batch)
+
+        send_api_request(settings.INSTANT_VOUCHER_INSERT_URL,
+            {'username': username, 'password': password, 'package_id': package_id})
 
     return True
 
