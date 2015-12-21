@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from ..models import Batch, Voucher
+from ..models import Batch, VoucherStandard
 
 class VoucherModelsTests(TestCase):
 
@@ -11,5 +11,5 @@ class VoucherModelsTests(TestCase):
         self.assertTrue(self.batch.__str__().endswith('2 5'))
 
     def test_voucher__str__(self):
-        voucher = Voucher.objects.create(pin=12345678901234, value=2, batch=self.batch)
+        voucher = VoucherStandard.objects.create(pin=12345678901234, value=2, batch=self.batch)
         self.assertTrue(voucher.__str__().endswith('2 GHS'))

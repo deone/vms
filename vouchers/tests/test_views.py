@@ -10,7 +10,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 from ..forms import GenerateStandardVoucherForm
 from ..views import generate
 from ..models import Batch
-from ..helpers import generate_vouchers
+from ..helpers import generate_standard_vouchers
 
 import json
 import os
@@ -44,7 +44,8 @@ class ViewsTests(TestCase):
         messages = FallbackStorage(request)
         setattr(request, '_messages', messages)
 
-        response = generate(request)
+        response = generate(request, template='vouchers/generate_standard.html',
+            voucher_form=GenerateStandardVoucherForm, redirect_to='vouchers:generate-standard')
         storage = get_messages(request)
 
         lst = []
@@ -65,7 +66,7 @@ class ViewsTests(TestCase):
         price = 1
         quantity = 5
         batch = Batch.objects.create(value=price, quantity=quantity)
-        generate_vouchers(price, quantity, batch)
+        generate_standard_vouchers(price, quantity, batch)
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))

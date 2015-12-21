@@ -44,7 +44,7 @@ def file_generator(_file):
 @ensure_csrf_cookie
 def voucher_values(request):
     response = {}
-    values = set(a.value for a in Voucher.objects.filter(is_sold=False))
+    values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
     response.update({'code': 200, 'results': list(values)})
     return JsonResponse(response)
 
@@ -67,7 +67,7 @@ def fetch_vouchers(request):
         vendor_id = request.POST['vendor_id']
         value = request.POST['value']
         quantity = request.POST['quantity']
-        vouchers = Voucher.objects.filter(value=value).exclude(is_sold=True)[:quantity]
+        vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]
 
         voucher_list = []
         for v in vouchers:
@@ -88,8 +88,8 @@ def redeem(request):
     if request.method == 'POST':
         pin = request.POST['pin']
         try:
-            voucher = Voucher.objects.get(pin=pin)
-        except Voucher.DoesNotExist:
+            voucher = VoucherStandard.objects.get(pin=pin)
+        except VoucherStandard.DoesNotExist:
             response.update({'code': 404, 'message': 'Voucher does not exist.'})
         else:
             if voucher.is_sold:
@@ -110,7 +110,7 @@ def invalidate(request):
 
     if request.method == 'POST':
         pk = request.POST['id']
-        voucher = Voucher.objects.get(pk=pk)
+        voucher = VoucherStandard.objects.get(pk=pk)
         voucher.is_valid = False
         voucher.save()
         response.update({'code': 200})
@@ -128,7 +128,7 @@ def insert_stub(request):
         value = 5
 
         batch = Batch.objects.create(value=value, quantity=1)
-        voucher = Voucher.objects.create(pin=pin, value=value, batch=batch, is_sold=True)
+        voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch, is_sold=True)
         response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
     else:
         response.update({'status': 'ok'})
@@ -141,7 +141,7 @@ def delete_stub(request):
     response = {}
     if request.method == 'POST':
         pin = request.POST['pin']
-        voucher = Voucher.objects.get(pin=pin)
+        voucher = VoucherStandard.objects.get(pin=pin)
         voucher.batch.delete()
         voucher.delete()
         response.update({'code': 200})
