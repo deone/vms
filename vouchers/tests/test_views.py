@@ -170,4 +170,9 @@ class VoucherFetchTests(TestCase):
         self.assertEqual(value['results'][1][1], '12345678901238')
 
     def test_fetch_voucher_values(self):
-        pass
+        response = self.c.get(reverse('vouchers:fetch_voucher_values'))
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 200)
+        self.assertEqual(value['results'], [1, 2, 5])
