@@ -125,3 +125,5 @@ VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 BILLING_URL = "http://localhost:8000/"
 
 PACKAGES_URL = BILLING_URL + "packages/"
+
+DOMAIN = 'spectrawireless.com'

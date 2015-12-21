@@ -10,7 +10,21 @@ class Batch(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.date_created.strftime('%B %d %Y, %I:%M%p'), str(self.value), str(self.quantity))
 
-class Voucher(models.Model):
+class Common(models.Model):
+    class Meta:
+        abstract = True
+
+    value = models.PositiveSmallIntegerField()
+    date_created = models.DateTimeField(default=timezone.now)
+    is_valid = models.BooleanField(default=True) # this can be True or False
+    is_sold = models.BooleanField(default=False)
+    batch = models.ForeignKey(Batch)
+
+class VoucherInstant(Common):
+    username = models.CharField(max_length=24) # e.g.uxuw@spectrawireless.com
+    password = models.CharField(max_length=6)
+
+class VoucherStandard(Common):
     UNIT = 'GHS'
 
     # price choices
@@ -43,16 +57,11 @@ class Voucher(models.Model):
 
     # Use id as serial number
     pin = models.CharField(max_length=14)
-    value = models.PositiveSmallIntegerField()
-    date_created = models.DateTimeField(default=timezone.now)
-    is_valid = models.BooleanField(default=True) # this can be True or False
-    is_sold = models.BooleanField(default=False)
-    batch = models.ForeignKey(Batch)
 
     def __str__(self):
         return '%s %s GHS' % (self.pk, self.value)
 
 class Vend(models.Model):
     vendor_id = models.PositiveSmallIntegerField()
-    voucher = models.ForeignKey(Voucher)
+    voucher = models.ForeignKey(VoucherStandard)
     date_of_vend = models.DateTimeField(default=timezone.now)
