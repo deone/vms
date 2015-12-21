@@ -126,7 +126,7 @@ BILLING_URL = "http://localhost:8000/"
 
 PACKAGES_URL = BILLING_URL + "packages/"
 
-INSTANT_VOUCHER_INSERT_URL = BILLING_URL + "insert_vouchers/"
+INSTANT_VOUCHER_INSERT_URL = PACKAGES_URL + "insert_vouchers/"
 
 DOMAIN = 'spectrawireless.com'
 

@@ -9,7 +9,7 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 
 from ..forms import GenerateStandardVoucherForm
 from ..views import generate
-from ..models import Batch
+from ..models import Batch, VoucherStandard
 from ..helpers import generate_standard_vouchers
 
 import json
@@ -129,6 +129,18 @@ class APITests(TestCase):
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(value['code'], 500)
+
+    def test_redeem_unsold_voucher(self):
+        voucher = VoucherStandard.objects.get(pk=self.voucher['id'])
+        voucher.is_sold = False
+        voucher.save()
+
+        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 500)
+        self.assertEqual(value['message'], 'You cannot use this voucher. It has not been sold.')
 
     def tearDown(self):
         # Delete stub
