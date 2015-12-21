@@ -145,3 +145,29 @@ class APITests(TestCase):
     def tearDown(self):
         # Delete stub
         self.c.post(reverse('vouchers:delete'), data=self.data)
+
+class VoucherFetchTests(TestCase):
+
+    def setUp(self):
+        self.c = Client()
+
+        batch_one = Batch.objects.create(value=1, quantity=1, voucher_type='STD')
+        batch_two = Batch.objects.create(value=2, quantity=1, voucher_type='STD')
+        batch_five = Batch.objects.create(value=5, quantity=1, voucher_type='STD')
+
+        voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=batch_one)
+        voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=batch_two)
+        voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=batch_two)
+        voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
+
+    def test_fetch_vouchers(self):
+        response = self.c.post(reverse('vouchers:fetch_vouchers'), data={'vendor_id': 2, 'quantity': 2, 'value': 2})
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['code'], 200)
+        self.assertEqual(value['results'][0][1], '12345678901236')
+        self.assertEqual(value['results'][1][1], '12345678901238')
+
+    def test_fetch_voucher_values(self):
+        pass
