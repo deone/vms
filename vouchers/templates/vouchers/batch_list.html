@@ -32,6 +32,7 @@
       <th scope="col">Date/Time Created</th>
       <th scope="col">Value (GHS)</th>
       <th scope="col">Quantity</th>
+      <th scope="col">Type</th>
       <th scope="col">Download Status</th>
     </tr>
   </thead>
@@ -41,6 +42,13 @@
       <td>{{ batch.date_created }}</td>
       <td>{{ batch.value }}</td>
       <td>{{ batch.quantity }}</td>
+      <td>
+        {% ifequal batch.voucher_type 'STD' %}
+          Standard
+        {% else %}
+          Instant
+        {% endifequal %}
+      </td>
       <td>
         <form action="{% url 'vouchers:download' pk=batch.pk %}" method="post">
           {% csrf_token %}
