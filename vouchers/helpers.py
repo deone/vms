@@ -5,8 +5,14 @@ from .models import VoucherStandard, VoucherInstant
 import random
 import string
 
-def generate_instant_vouchers():
-    pass
+def generate_instant_vouchers(price, quantity, batch):
+    username = 'xxxx@spectrawireless.com'
+    password = 'B8YYGX'
+
+    for i in range(int(quantity)):
+        VoucherInstant.objects.create(username=username, password=password, value=price, batch=batch)
+
+    return True
 
 def generate_standard_vouchers(price, quantity, batch):
     chars = string.digits
