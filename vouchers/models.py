@@ -2,9 +2,19 @@ from django.db import models
 from django.utils import timezone
 
 class Batch(models.Model):
+    INSTANT = 'INS'
+    STANDARD = 'STD'
+
+    TYPE_CHOICES = (
+        ('', 'Select Type'),
+        (STANDARD, 'Standard'),
+        (INSTANT, 'Instant'),
+    )
+
     value = models.PositiveSmallIntegerField()
     quantity = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
+    voucher_type = models.CharField(max_length=3, choices=TYPE_CHOICES)
     is_downloaded = models.BooleanField(default=False)
 
     def __str__(self):
