@@ -160,7 +160,7 @@ class VoucherFetchTests(TestCase):
         voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=batch_two)
         voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
 
-    def test_fetch_vouchers(self):
+    def test_fetch_vouchers_post(self):
         response = self.c.post(reverse('vouchers:fetch_vouchers'), data={'vendor_id': 2, 'quantity': 2, 'value': 2})
         value = json.loads(response.content)
 
@@ -168,6 +168,13 @@ class VoucherFetchTests(TestCase):
         self.assertEqual(value['code'], 200)
         self.assertEqual(value['results'][0][1], '12345678901236')
         self.assertEqual(value['results'][1][1], '12345678901238')
+
+    def test_fetch_vouchers_get(self):
+        response = self.c.get(reverse('vouchers:fetch_vouchers'))
+        value = json.loads(response.content)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(value['status'], 'ok')
 
     def test_fetch_voucher_values(self):
         response = self.c.get(reverse('vouchers:fetch_voucher_values'))
