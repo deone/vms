@@ -42,7 +42,7 @@ def file_generator(_file):
             yield line
 
 @ensure_csrf_cookie
-def voucher_values(request):
+def fetch_voucher_values(request):
     response = {}
     values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
     response.update({'code': 200, 'results': list(values)})

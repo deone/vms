@@ -23,7 +23,7 @@ class ViewsTests(TestCase):
 
     def test_generate_get(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
-        response = self.c.get(reverse('vouchers:generate-standard'))
+        response = self.c.get(reverse('vouchers:generate_standard'))
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
         self.assertTrue(isinstance(response.context['form'], GenerateStandardVoucherForm))
@@ -35,7 +35,7 @@ class ViewsTests(TestCase):
         factory = RequestFactory()
         session = SessionMiddleware()
 
-        request = factory.post(reverse('vouchers:generate-standard'), data={'price': '1', 'quantity': '20'})
+        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '1', 'quantity': '20'})
         request.user = self.user
 
         session.process_request(request)
@@ -45,7 +45,7 @@ class ViewsTests(TestCase):
         setattr(request, '_messages', messages)
 
         response = generate(request, template='vouchers/generate_standard.html',
-            voucher_form=GenerateStandardVoucherForm, redirect_to='vouchers:generate-standard')
+            voucher_form=GenerateStandardVoucherForm, redirect_to='vouchers:generate_standard')
         storage = get_messages(request)
 
         lst = []
@@ -54,7 +54,7 @@ class ViewsTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertEqual('Vouchers generated successfully.', lst[0].__str__())
-        self.assertEqual(response.get('location'), reverse('vouchers:generate-standard'))
+        self.assertEqual(response.get('location'), reverse('vouchers:generate_standard'))
 
     def test_batch_list_get(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
