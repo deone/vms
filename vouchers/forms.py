@@ -28,6 +28,8 @@ class GenerateStandardVoucherForm(Common):
         batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='STD')
         generate_standard_vouchers(price, quantity, batch)
 
+        return batch
+
 class GenerateInstantVoucherForm(Common):
     package = forms.ChoiceField(label='Package', choices=get_packages(), widget=forms.Select({'class': 'form-control'}))
 
@@ -40,3 +42,5 @@ class GenerateInstantVoucherForm(Common):
 
         batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='INS')
         generate_instant_vouchers(price, quantity, batch, package_id)
+
+        return batch
