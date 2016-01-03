@@ -32,7 +32,7 @@ class Common(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)
-    sold_to = models.PositiveSmallIntegerField()
+    sold_to = models.PositiveSmallIntegerField(null=True)
     batch = models.ForeignKey(Batch)
     vend = models.ForeignKey(Vend, null=True)
 
