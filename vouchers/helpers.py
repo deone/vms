@@ -7,6 +7,13 @@ import string
 
 import requests
 
+def get_packages():
+    lst = [('', 'Select Package')]
+    packages = requests.get(settings.PACKAGES_URL).json()
+    for p in packages['results']:
+        lst.append(p)
+    return lst
+
 def send_api_request(url, data):
     get_response = requests.get(url)
     post_response = requests.post(

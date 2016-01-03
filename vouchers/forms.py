@@ -2,16 +2,9 @@ from django import forms
 from django.conf import settings
 
 from .models import VoucherStandard, Batch
-from .helpers import generate_standard_vouchers, generate_instant_vouchers
-
-import requests
-
-def get_packages():
-    lst = [('', 'Select Package')]
-    packages = requests.get(settings.PACKAGES_URL).json()
-    for p in packages['results']:
-        lst.append(p)
-    return lst
+from .helpers import (
+    generate_standard_vouchers, generate_instant_vouchers, get_packages
+)
 
 class Common(forms.Form):
     quantity = forms.ChoiceField(label='Quantity',
@@ -32,6 +25,11 @@ class GenerateStandardVoucherForm(Common):
 
 class GenerateInstantVoucherForm(Common):
     package = forms.ChoiceField(label='Package', choices=get_packages(), widget=forms.Select({'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        packages = kwargs.pop('packages', None)
+        super(GenerateInstantVoucherForm, self).__init__(*args, **kwargs)
+        self.fields['package'] = forms.ChoiceField(label='Package', choices=packages, widget=forms.Select({'class': 'form-control'}))
 
     def save(self):
         package_id = self.cleaned_data['package']
