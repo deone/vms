@@ -127,7 +127,7 @@ def insert_stub(request):
         pin = request.POST['pin']
         value = 5
 
-        batch = Batch.objects.create(value=value, quantity=1)
+        batch = Batch.objects.create(value=value, quantity=1, voucher_type='STD')
         voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch, is_sold=True)
         response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
     else:
