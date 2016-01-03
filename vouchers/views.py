@@ -62,9 +62,14 @@ def download(request, pk):
 
 @ensure_csrf_cookie
 def fetch_vouchers(request):
+    # When a vend happens, do this:
+    # - create a vend entry.
+    # - fetch vouchers based on voucher_type.
+    # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=Vend.pk.
     response = {}
     if request.method == 'POST':
         vendor_id = request.POST['vendor_id']
+        voucher_type = request.POST['voucher_type']
         value = request.POST['value']
         quantity = request.POST['quantity']
         vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]

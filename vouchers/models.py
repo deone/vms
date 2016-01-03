@@ -20,6 +20,10 @@ class Batch(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.date_created.strftime('%B %d %Y, %I:%M%p'), str(self.value), str(self.quantity))
 
+class Vend(models.Model):
+    vendor_id = models.PositiveSmallIntegerField()
+    date_of_vend = models.DateTimeField(default=timezone.now)
+
 class Common(models.Model):
     class Meta:
         abstract = True
@@ -28,7 +32,9 @@ class Common(models.Model):
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)
+    sold_to = models.PositiveSmallIntegerField()
     batch = models.ForeignKey(Batch)
+    vend = models.ForeignKey(Vend, null=True)
 
 class VoucherInstant(Common):
     username = models.CharField(max_length=24) # e.g.uxuw@spectrawireless.com
@@ -70,8 +76,3 @@ class VoucherStandard(Common):
 
     def __str__(self):
         return '%s %s GHS' % (self.pk, self.value)
-
-class Vend(models.Model):
-    vendor_id = models.PositiveSmallIntegerField()
-    voucher = models.ForeignKey(VoucherStandard)
-    date_of_vend = models.DateTimeField(default=timezone.now)
