@@ -5,22 +5,30 @@ from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.conf import settings
 
 from .models import *
-from .helpers import write_batch, zeropad
+from .helpers import write_batch, zeropad, get_packages
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
 @login_required
 def generate(request, template=None, voucher_form=None, redirect_to=None):
     context = {}
     if request.method == "POST":
-        form = voucher_form(request.POST)
+        if isinstance(voucher_form, GenerateInstantVoucherForm):
+            form = voucher_form(request.POST, packages=get_packages())
+        else:
+            form = voucher_form(request.POST)
+
         if form.is_valid():
             form.save()
             messages.success(request, 'Vouchers generated successfully.')
             return redirect(redirect_to)
     else:
-        form = voucher_form()
+        if isinstance(voucher_form, GenerateInstantVoucherForm):
+            form = voucher_form(packages=get_packages())
+        else:
+            form = voucher_form(request.POST)
 
     context.update({'form': form})
     return render(request, template, context)
@@ -44,7 +52,10 @@ def file_generator(_file):
 @ensure_csrf_cookie
 def fetch_voucher_values(request):
     response = {}
+
     values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
+    values.update(set(a.value for a in VoucherInstant.objects.filter(is_sold=False)))
+
     response.update({'code': 200, 'results': list(values)})
     return JsonResponse(response)
 
@@ -62,23 +73,33 @@ def download(request, pk):
 
 @ensure_csrf_cookie
 def fetch_vouchers(request):
-    # When a vend happens, do this:
-    # - create a vend entry.
-    # - fetch vouchers based on voucher_type.
-    # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=Vend.pk.
     response = {}
     if request.method == 'POST':
         vendor_id = request.POST['vendor_id']
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
         quantity = request.POST['quantity']
-        vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]
+
+        # - create a vend entry.
+        vend = Vend.objects.create(vendor_id=vendor_id)
+
+        # - fetch vouchers based on voucher_type.
+        if voucher_type == 'STD':
+            vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]
+        elif voucher_type == 'INS':
+            vouchers = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:quantity]
 
         voucher_list = []
         for v in vouchers:
-            Vend.objects.create(vendor_id=vendor_id, voucher=v)
-            voucher_list.append([zeropad(v.pk), v.pin])
+            if isinstance(v, VoucherStandard):
+                voucher_list.append([zeropad(v.pk), v.pin])
+            elif isinstance(v, VoucherInstant):
+                voucher_list.append([zeropad(v.pk), v.username, v.password])
+
+            # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=vend.
             v.is_sold = True
+            v.sold_to = vendor_id
+            v.vend = vend
             v.save()
         response.update({'code': 200, 'results': voucher_list})
     else:

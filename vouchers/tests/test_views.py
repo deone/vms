@@ -161,7 +161,8 @@ class VoucherFetchTests(TestCase):
         voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
 
     def test_fetch_vouchers_post(self):
-        response = self.c.post(reverse('vouchers:fetch_vouchers'), data={'vendor_id': 2, 'quantity': 2, 'value': 2})
+        response = self.c.post(reverse('vouchers:fetch_vouchers'),
+            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(response['Content-Type'], 'application/json')
