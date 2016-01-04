@@ -50,6 +50,20 @@ def file_generator(_file):
             yield line
 
 @ensure_csrf_cookie
+def sell(request):
+    response = {}
+    if request.method == 'POST':
+        pin = request.POST['pin']
+        voucher = VoucherStandard.objects.get(pin=pin)
+        voucher.is_sold = True
+        voucher.save()
+        response.update({'code': 200})
+    else:
+        response.update({'status': 'ok'})
+
+    return JsonResponse(response)
+
+@ensure_csrf_cookie
 def fetch_voucher_values(request):
     voucher_type = request.GET['voucher_type']
     response = {}
@@ -140,6 +154,7 @@ def invalidate(request):
     if request.method == 'POST':
         pk = request.POST['id']
         voucher = VoucherStandard.objects.get(pk=pk)
+        voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
         voucher.is_valid = False
         voucher.save()
         response.update({'code': 200})
@@ -157,7 +172,7 @@ def insert_stub(request):
         value = 5
 
         batch = Batch.objects.create(value=value, quantity=1, voucher_type='STD')
-        voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch, is_sold=True)
+        voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
         response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
     else:
         response.update({'status': 'ok'})
