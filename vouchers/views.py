@@ -51,10 +51,13 @@ def file_generator(_file):
 
 @ensure_csrf_cookie
 def fetch_voucher_values(request):
+    voucher_type = request.GET['voucher_type']
     response = {}
 
-    values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
-    values.update(set(a.value for a in VoucherInstant.objects.filter(is_sold=False)))
+    if voucher_type == 'STD':
+        values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
+    elif voucher_type == 'INS':
+        values = set(a.value for a in VoucherInstant.objects.filter(is_sold=False))
 
     response.update({'code': 200, 'results': list(values)})
     return JsonResponse(response)
