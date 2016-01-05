@@ -106,6 +106,10 @@ class APITests(TestCase):
 
     def test_redeem_post(self):
         # Write tests
+        voucher = VoucherStandard.objects.get(pin=self.data['pin'])
+        voucher.is_sold = True
+        voucher.save()
+
         response = self.c.post(reverse('vouchers:redeem'), data=self.data)
         value = json.loads(response.content)
 
@@ -171,14 +175,14 @@ class VoucherFetchTests(TestCase):
         self.assertEqual(value['results'][1][1], '12345678901238')
 
     def test_fetch_vouchers_get(self):
-        response = self.c.get(reverse('vouchers:fetch_vouchers'))
+        response = self.c.get(reverse('vouchers:fetch_vouchers'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(value['status'], 'ok')
 
     def test_fetch_voucher_values(self):
-        response = self.c.get(reverse('vouchers:fetch_voucher_values'))
+        response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(response['Content-Type'], 'application/json')
