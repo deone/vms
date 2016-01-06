@@ -37,7 +37,7 @@ class Common(models.Model):
     vend = models.ForeignKey(Vend, null=True)
 
 class VoucherInstant(Common):
-    username = models.CharField(max_length=24) # e.g.uxuw@spectrawireless.com
+    username = models.CharField(max_length=24, unique=True) # e.g.uxuw@spectrawireless.com
     password = models.CharField(max_length=6)
 
 class VoucherStandard(Common):
