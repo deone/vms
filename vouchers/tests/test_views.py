@@ -79,7 +79,7 @@ class APITests(TestCase):
     def setUp(self):
         # Create stub
         self.c = Client()
-        self.data = {'pin': 12345678901234}
+        self.data = {'pin': '12345678901234', 'voucher_type': 'STD'}
         self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
 
     def check_response(self, response):
@@ -148,7 +148,7 @@ class APITests(TestCase):
 
     def tearDown(self):
         # Delete stub
-        self.c.post(reverse('vouchers:delete'), data=self.data)
+        self.c.post(reverse('vouchers:delete'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
 
 class VoucherFetchTests(TestCase):
 
