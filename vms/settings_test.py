@@ -1,12 +1,10 @@
 from settings import *
 
-DEBUG = TEMPLATE_DEBUG = False
+IP = '154.117.8.19'
 
-ALLOWED_HOSTS = ['154.117.8.18']
+ALLOWED_HOSTS = [IP]
 
-STATIC_URL = "/static/"
-
-BILLING_URL = "http://154.117.8.18:8080/"
+BILLING_URL = "http://" + IP + ":8080/"
 
 PACKAGES_URL = BILLING_URL + "packages/"
 
