@@ -168,12 +168,20 @@ def insert_stub(request):
     """ This function is strictly for testing the API. """
     response = {}
     if request.method == 'POST':
-        pin = request.POST['pin']
+        voucher_type = request.POST['voucher_type']
         value = 5
 
-        batch = Batch.objects.create(value=value, quantity=1, voucher_type='STD')
-        voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
-        response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
+        batch = Batch.objects.create(value=value, quantity=1, voucher_type=voucher_type)
+
+        if voucher_type=='STD':
+            pin = request.POST['pin']
+            voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
+            response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
+        elif voucher_type=='INS':
+            username = request.POST['username']
+            password = request.POST['password']
+            voucher = VoucherInstant.objects.create(batch=batch, username=username, password=password, value=value)
+            response.update({'code': 200, 'id': voucher.pk, 'username': voucher.username})
     else:
         response.update({'status': 'ok'})
 
@@ -184,8 +192,14 @@ def delete_stub(request):
     """ This function is strictly for testing the API. """
     response = {}
     if request.method == 'POST':
-        pin = request.POST['pin']
-        voucher = VoucherStandard.objects.get(pin=pin)
+        voucher_type = request.POST['voucher_type']
+        pk = request.POST['voucher_id']
+
+        if voucher_type == 'INS':
+            voucher = VoucherInstant.objects.get(pk=pk)
+        elif voucher_type == 'STD':
+            voucher = VoucherStandard.objects.get(pk=pk)
+
         voucher.batch.delete()
         voucher.delete()
         response.update({'code': 200})

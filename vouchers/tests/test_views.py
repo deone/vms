@@ -188,3 +188,23 @@ class VoucherFetchTests(TestCase):
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(value['code'], 200)
         self.assertEqual(value['results'], [1, 2, 5])
+
+class InstantVoucherTests(TestCase):
+
+    def setUp(self):
+        self.c = Client()
+        self.response = self.c.post(reverse('vouchers:insert'),
+            data={'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
+        self.voucher = json.loads(self.response.content)
+
+    def test_insert_stub(self):
+        self.assertEqual(self.response['Content-Type'], 'application/json')
+        self.assertEqual(self.voucher['code'], 200)
+        self.assertEqual(self.voucher['username'], 'a@a.com')
+
+    def test_delete_stub(self):
+        response = self.c.post(reverse('vouchers:delete'),
+            data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
+        value = json.loads(response.content)
+
+        self.assertEqual(value['code'], 200)
