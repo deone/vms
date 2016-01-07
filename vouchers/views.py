@@ -57,7 +57,9 @@ def sell(request):
         voucher = VoucherStandard.objects.get(pin=pin)
         voucher.is_sold = True
         voucher.save()
-        response.update({'code': 200})
+        voucher.__dict__.pop("_state")
+        voucher.__dict__.pop("date_created")
+        response.update({'code': 200, 'result': voucher.__dict__})
     else:
         response.update({'status': 'ok'})
 
