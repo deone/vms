@@ -6,11 +6,12 @@ from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.conf import settings
 
-from ..forms import GenerateStandardVoucherForm
+from .. import forms
 from ..views import generate
 from ..models import Batch, VoucherStandard, VoucherInstant
-from ..helpers import generate_standard_vouchers
+from ..helpers import generate_standard_vouchers, send_api_request
 
 import json
 import os
@@ -21,15 +22,34 @@ class ViewsTests(TestCase):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
 
-    def test_generate_get(self):
+    def test_generate_standard_vouchers_GET(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:generate_standard'))
+
         self.assertEqual(response.status_code, 200)
         self.assertTrue('form' in response.context)
-        self.assertTrue(isinstance(response.context['form'], GenerateStandardVoucherForm))
+        self.assertTrue(isinstance(response.context['form'], forms.GenerateStandardVoucherForm))
         self.assertTemplateUsed(response, 'vouchers/generate_standard.html')
 
-    def test_generate_post(self):
+    def test_generate_instant_vouchers_GET(self):
+        # Create package - we don't need this since this is a get request.
+        """ response = send_api_request(settings.PACKAGE_INSERT_URL,
+            data={'package_type': 'Daily', 'volume': '3', 'speed': '1.5', 'price': 4})
+        package = response['result'] """
+
+        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+        response = self.c.get(reverse('vouchers:generate_instant'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('form' in response.context)
+        self.assertTrue(isinstance(response.context['form'], forms.GenerateInstantVoucherForm))
+        self.assertTemplateUsed(response, 'vouchers/generate_instant.html')
+
+        # Delete package
+        # send_api_request(settings.PACKAGE_DELETE_URL, data={'package_id': package['id']})
+
+    # Refactor these
+    def test_generate_standard_vouchers_POST(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
 
         factory = RequestFactory()
@@ -45,7 +65,7 @@ class ViewsTests(TestCase):
         setattr(request, '_messages', messages)
 
         response = generate(request, template='vouchers/generate_standard.html',
-            voucher_form=GenerateStandardVoucherForm, redirect_to='vouchers:generate_standard')
+            voucher_form=forms.GenerateStandardVoucherForm, redirect_to='vouchers:generate_standard')
         storage = get_messages(request)
 
         lst = []
@@ -55,6 +75,42 @@ class ViewsTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual('Vouchers generated successfully.', lst[0].__str__())
         self.assertEqual(response.get('location'), reverse('vouchers:generate_standard'))
+
+    def test_generate_instant_vouchers_POST(self):
+        # Create package
+        response = send_api_request(settings.PACKAGE_INSERT_URL,
+            data={'package_type': 'Daily', 'volume': '3', 'speed': '1.5', 'price': 4})
+        package = response['result']
+
+        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+
+        factory = RequestFactory()
+        session = SessionMiddleware()
+
+        request = factory.post(reverse('vouchers:generate_instant'), data={'package': package['id'], 'quantity': '20'})
+        request.user = self.user
+
+        session.process_request(request)
+        request.session.save()
+
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = generate(request, template='vouchers/generate_instant.html',
+            voucher_form=forms.GenerateInstantVoucherForm, redirect_to='vouchers:generate_instant')
+        storage = get_messages(request)
+
+        lst = []
+        for message in storage:
+            lst.append(message)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual('Vouchers generated successfully.', lst[0].__str__())
+        self.assertEqual(response.get('location'), reverse('vouchers:generate_instant'))
+
+        # Delete package
+        send_api_request(settings.PACKAGE_DELETE_URL, data={'package_id': package['id']})
+    ########
 
     def test_batch_list_get(self):
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})

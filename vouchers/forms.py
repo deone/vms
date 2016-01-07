@@ -24,7 +24,6 @@ class GenerateStandardVoucherForm(Common):
         return batch
 
 class GenerateInstantVoucherForm(Common):
-    package = forms.ChoiceField(label='Package', choices=get_packages(), widget=forms.Select({'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         packages = kwargs.pop('packages', None)

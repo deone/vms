@@ -7,8 +7,9 @@ from ..helpers import send_api_request, get_packages
 class GenerateInstantVoucherFormTest(TestCase):
 
     def setUp(self):
-        self.package = send_api_request(settings.PACKAGE_INSERT_URL,
+        response = send_api_request(settings.PACKAGE_INSERT_URL,
             data={'package_type': 'Daily', 'volume': '3', 'speed': '1.5', 'price': 4})
+        self.package = response['result']
         self.data = {'package': self.package['id'], 'quantity': 20}
 
     def test_save(self):
