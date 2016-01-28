@@ -69,8 +69,8 @@ def write_vouchers(voucher_list, _file, voucher_type):
     for v in voucher_list:
         with open(_file, 'a') as f:
             if voucher_type == 'STD':
-                f.write(zeropad(v.pk) + ',' + v.pin + '\n')
+                f.write(zeropad(v.pk) + ',' + v.pin + '\r\n')
             elif voucher_type == 'INS':
-                f.write(zeropad(v.pk) + ',' + v.username + v.password + '\n')
+                f.write(zeropad(v.pk) + ',' + v.username + ',' + v.password + '\r\n')
 
     return f
