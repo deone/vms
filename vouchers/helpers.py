@@ -52,17 +52,25 @@ def zeropad(num):
     return ('0' * (10 - len(num))) + num
 
 def write_batch(batch):
-    file_name = batch.date_created.strftime('%d-%m-%Y_%I:%M') + '_' + str(batch.value) + 'GHS.csv'
-    _file = settings.VOUCHER_DOWNLOAD_PATH + '/' + file_name
-    vouchers = VoucherStandard.objects.filter(batch=batch)
+    if batch.voucher_type == 'STD':
+        file_name = 'Vouchers_Standard_' + batch.date_created.strftime('%d-%m-%Y_%I:%M') + '_' + str(batch.value) + 'GHS.txt'
+        _file = settings.VOUCHER_DOWNLOAD_PATH + '/' + file_name
+        vouchers = VoucherStandard.objects.filter(batch=batch)
+    elif batch.voucher_type == 'INS':
+        file_name = 'Vouchers_Instant_' + batch.date_created.strftime('%d-%m-%Y_%I:%M') + '_' + str(batch.value) + 'GHS.txt'
+        _file = settings.VOUCHER_DOWNLOAD_PATH + '/' + file_name
+        vouchers = VoucherInstant.objects.filter(batch=batch)
 
-    f = write_vouchers(vouchers, _file)
+    f = write_vouchers(vouchers, _file, batch.voucher_type)
 
     return (f, file_name)
 
-def write_vouchers(voucher_list, _file):
+def write_vouchers(voucher_list, _file, voucher_type):
     for v in voucher_list:
         with open(_file, 'a') as f:
-            f.write(zeropad(v.pk) + ',' + v.pin + '\n')
+            if voucher_type == 'STD':
+                f.write(zeropad(v.pk) + ',' + v.pin + '\n')
+            elif voucher_type == 'INS':
+                f.write(zeropad(v.pk) + ',' + v.username + v.password + '\n')
 
     return f

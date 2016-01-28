@@ -86,7 +86,7 @@ def download(request, pk):
     batch.is_downloaded = True
     batch.save()
 
-    response = HttpResponse(file_generator(_file), content_type='text/csv')
+    response = HttpResponse(file_generator(_file), content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
     return response
 
