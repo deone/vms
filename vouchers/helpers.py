@@ -25,12 +25,12 @@ def send_api_request(url, data):
 
     return post_response.json()
 
-def id_generator(size=6, chars=string.ascii_uppercase + string.digits):
+def id_generator(size=6, chars=string.ascii_uppercase.replace('O', '') + string.digits.replace('0', '')):
     return ''.join(random.choice(chars) for _ in range(size))
 
 def generate_instant_vouchers(price, quantity, batch, package_id):
     for i in range(int(quantity)):
-        username = id_generator(size=settings.USERNAME_LENGTH, chars=string.ascii_lowercase) + '@' + settings.DOMAIN
+        username = id_generator(size=settings.USERNAME_LENGTH) + '@' + settings.DOMAIN
         password = id_generator(size=settings.PASSWORD_LENGTH)
         VoucherInstant.objects.create(username=username, password=password, value=price, batch=batch)
 
