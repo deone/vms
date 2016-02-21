@@ -132,7 +132,7 @@ PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
 
 INSTANT_VOUCHER_INSERT_URL = PACKAGES_URL + "insert_vouchers/"
 
-DOMAIN = 'spectrawireless.com'
+DOMAIN = 'be.com.gh'
 
 USERNAME_LENGTH = 4
 
