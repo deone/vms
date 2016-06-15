@@ -121,13 +121,13 @@ class ViewsTests(TestCase):
     def test_download(self):
         price = 1
         quantity = 5
-        batch = Batch.objects.create(value=price, quantity=quantity)
+        batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='STD')
         generate_standard_vouchers(price, quantity, batch)
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
         response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
 
-        self.assertEqual(response['Content-Type'], 'text/csv')
+        self.assertEqual(response['Content-Type'], 'text/plain')
         self.assertNotEqual(response.content, '')
 
 class APITests(TestCase):
