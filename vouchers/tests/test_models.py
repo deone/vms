@@ -7,7 +7,7 @@ class VoucherModelsTests(TestCase):
 
     def setUp(self):
         user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-        self.batch = Batch.objects.create(value=2, quantity=5, user=user)
+        self.batch = Batch.objects.create(voucher_type='STD', value=2, quantity=5, user=user)
 
     def test_batch__str__(self):
         self.assertTrue(self.batch.__str__().endswith('2 5'))

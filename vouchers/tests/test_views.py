@@ -277,25 +277,6 @@ class InstantVoucherTests(TestCase):
 
     def setUp(self):
         self.c = Client()
-        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
-        
-        """ self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
-
-        factory = RequestFactory()
-        session = SessionMiddleware()
-
-        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '1', 'quantity': '20'})
-        request.user = self.user
-
-        session.process_request(request)
-        request.session.save()
-        
-        messages = FallbackStorage(request)
-        setattr(request, '_messages', messages)
-
-        response = generate(request, template='vouchers/generate_instant.html',
-            voucher_form=forms.GenerateInstantVoucherForm, redirect_to='vouchers:generate_instant') """
-        
         self.response = self.c.post(reverse('vouchers:insert'),
             data={'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
         self.voucher = json.loads(self.response.content)
