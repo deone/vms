@@ -14,11 +14,15 @@ class GenerateStandardVoucherForm(Common):
     price = forms.ChoiceField(label='Price',
         choices=VoucherStandard.PRICE_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super(GenerateStandardVoucherForm, self).__init__(*args, **kwargs)
+
     def save(self):
         price = self.cleaned_data['price']
         quantity = self.cleaned_data['quantity']
 
-        batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='STD')
+        batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='STD')
         generate_standard_vouchers(price, quantity, batch)
 
         return batch
