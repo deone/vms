@@ -112,28 +112,30 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-LOGIN_URL = 'login'
-
-LOGIN_REDIRECT_URL = 'vouchers:batches'
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static_live")
 
-PIN_LENGTH = 14
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'vouchers:batches'
 
+# Voucher settings
+PIN_LENGTH = 14
 VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 
+# Billing System settings
 BILLING_URL = "http://localhost:8000/"
-
 PACKAGES_URL = BILLING_URL + "packages/"
-
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
-
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
-
 INSTANT_VOUCHER_INSERT_URL = PACKAGES_URL + "insert_vouchers/"
 
+# Instant Voucher settings
 DOMAIN = 'sw.gh'
-
 USERNAME_LENGTH = 4
-
 PASSWORD_LENGTH = 4
+
+# Email settings
+DEFAULT_FROM_EMAIL = 'info@spectrawireless.com'
+EMAIL_HOST = '74.55.86.74'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'deone'
+EMAIL_HOST_PASSWORD = '@dune369'

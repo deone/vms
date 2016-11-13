@@ -28,31 +28,21 @@ class Batch(models.Model):
 
 @receiver(post_save, sender=Batch)
 def send_generation_report(sender, **kwargs):
-    """ {
-        '_state': <django.db.models.base.ModelState object at 0x7fbf92a1cb50>,
-        'voucher_type': 'STD',
-        'value': u'1',
-        'is_downloaded': False,
-        'date_created': datetime.datetime(2016, 11, 13, 11, 27, 28, 332763, tzinfo=<UTC>),
-        'id': 5L,
-        'quantity': u'20'
-    } """
-    instance = kwargs['instance'].__dict__
+    instance = kwargs['instance']
+    username = instance.user.username
+    if instance.user.first_name is '':
+        username = instance.user.get_full_name()
+
     context = {
-        
+        'username': username,
+        'batch_id': instance.id,
+        'voucher_type': instance.voucher_type,
+        'quantity': instance.quantity,
+        'value': instance.value,
+        'total_value': str(int(instance.value) * int(instance.quantity))
     }
 
-def send_verification_mail(user):
-    context = make_context(user)
-    subject_template = 'accounts/verification_subject.txt'
-    email_template = 'accounts/verification_email.html'
-    subject = loader.render_to_string(subject_template, context)
-    subject = ''.join(subject.splitlines())
-    body = loader.render_to_string(email_template, context)
-
-    email_message = EmailMultiAlternatives(subject, body, settings.DEFAULT_FROM_EMAIL, [user.email])
-
-    email_message.send()
+    send_report(context)
 
 class Vend(models.Model):
     vendor_id = models.PositiveSmallIntegerField()
