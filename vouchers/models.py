@@ -29,17 +29,23 @@ class Batch(models.Model):
 @receiver(post_save, sender=Batch)
 def send_generation_report(sender, **kwargs):
     instance = kwargs['instance']
+
+    VOUCHER_TYPE_DICT = {
+        'STD': 'Standard',
+        'INS': 'Instant'
+    }
+
     username = instance.user.username
-    if instance.user.first_name is '':
+    if instance.user.first_name is not '':
         username = instance.user.get_full_name()
 
     context = {
         'username': username,
         'batch_id': instance.id,
-        'voucher_type': instance.voucher_type,
+        'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type,
         'quantity': instance.quantity,
-        'value': instance.value,
-        'total_value': str(int(instance.value) * int(instance.quantity))
+        'value': instance.value + ' GHS',
+        'total_value': str(int(instance.value) * int(instance.quantity)) + ' GHS'
     }
 
     send_report(context)
