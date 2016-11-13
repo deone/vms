@@ -134,7 +134,7 @@ USERNAME_LENGTH = 4
 PASSWORD_LENGTH = 4
 
 # Email settings
-DEFAULT_FROM_EMAIL = '<Spectra VMS> info@spectrawireless.com'
+DEFAULT_FROM_EMAIL = 'Spectra VMS<noreply@spectrawireless.com>'
 EMAIL_HOST = '74.55.86.74'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'deone'
