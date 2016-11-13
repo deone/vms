@@ -16,7 +16,7 @@ def generate(request, template=None, voucher_form=None, redirect_to=None):
     context = {}
     if request.method == "POST":
         if voucher_form == GenerateInstantVoucherForm:
-            form = voucher_form(request.POST, packages=get_packages())
+            form = voucher_form(request.POST, packages=get_packages(), user=request.user)
         else:
             form = voucher_form(request.POST, user=request.user)
 

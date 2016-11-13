@@ -31,6 +31,7 @@ class GenerateInstantVoucherForm(Common):
 
     def __init__(self, *args, **kwargs):
         packages = kwargs.pop('packages', None)
+        self.user = kwargs.pop('user', None)
         super(GenerateInstantVoucherForm, self).__init__(*args, **kwargs)
         self.fields['package'] = forms.ChoiceField(label='Package', choices=packages, widget=forms.Select({'class': 'form-control'}))
 
@@ -41,7 +42,7 @@ class GenerateInstantVoucherForm(Common):
         packages_dict = dict(get_packages())
         price = packages_dict[int(package_id)].split(' ')[3]
 
-        batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='INS')
+        batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='INS')
         generate_instant_vouchers(price, quantity, batch, package_id)
 
         return batch
