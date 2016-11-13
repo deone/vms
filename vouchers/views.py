@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
 
 from .models import *
@@ -170,10 +171,11 @@ def insert_stub(request):
     """ This function is strictly for testing the API. """
     response = {}
     if request.method == 'POST':
+        user = User.objects.create_user('p@p.com', 'p@p.com', '12345')
         voucher_type = request.POST['voucher_type']
         value = 5
 
-        batch = Batch.objects.create(value=value, quantity=1, voucher_type=voucher_type)
+        batch = Batch.objects.create(user=user, value=value, quantity=1, voucher_type=voucher_type)
 
         if voucher_type=='STD':
             pin = request.POST['pin']

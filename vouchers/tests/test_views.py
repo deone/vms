@@ -121,7 +121,7 @@ class ViewsTests(TestCase):
     def test_download(self):
         price = 1
         quantity = 5
-        batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='STD')
+        batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='STD')
         generate_standard_vouchers(price, quantity, batch)
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
@@ -135,7 +135,8 @@ class APITests(TestCase):
     def setUp(self):
         # Create stub
         self.c = Client()
-        self.data = {'pin': '12345678901234', 'voucher_type': 'STD'}
+        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
+        self.data = {'user': self.user, 'pin': '12345678901234', 'voucher_type': 'STD'}
         self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
 
     def check_response(self, response):
@@ -205,17 +206,18 @@ class VoucherFetchTests(TestCase):
 
     def setUp(self):
         self.c = Client()
+        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
 
-        batch_one = Batch.objects.create(value=1, quantity=1, voucher_type='STD')
-        batch_two = Batch.objects.create(value=2, quantity=1, voucher_type='STD')
-        batch_five = Batch.objects.create(value=5, quantity=1, voucher_type='STD')
+        batch_one = Batch.objects.create(user=self.user, value=1, quantity=1, voucher_type='STD')
+        batch_two = Batch.objects.create(user=self.user, value=2, quantity=1, voucher_type='STD')
+        batch_five = Batch.objects.create(user=self.user, value=5, quantity=1, voucher_type='STD')
 
         voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=batch_one)
         voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=batch_two)
         voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=batch_two)
         voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
 
-        batch_one_ins = Batch.objects.create(value=2, quantity=2, voucher_type='INS')
+        batch_one_ins = Batch.objects.create(user=self.user, value=2, quantity=2, voucher_type='INS')
 
         voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=batch_one_ins)
         voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=batch_one_ins)
@@ -275,6 +277,25 @@ class InstantVoucherTests(TestCase):
 
     def setUp(self):
         self.c = Client()
+        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+        
+        """ self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
+
+        factory = RequestFactory()
+        session = SessionMiddleware()
+
+        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '1', 'quantity': '20'})
+        request.user = self.user
+
+        session.process_request(request)
+        request.session.save()
+        
+        messages = FallbackStorage(request)
+        setattr(request, '_messages', messages)
+
+        response = generate(request, template='vouchers/generate_instant.html',
+            voucher_form=forms.GenerateInstantVoucherForm, redirect_to='vouchers:generate_instant') """
+        
         self.response = self.c.post(reverse('vouchers:insert'),
             data={'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
         self.voucher = json.loads(self.response.content)
