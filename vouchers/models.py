@@ -42,7 +42,7 @@ def send_generation_report(sender, **kwargs):
     context = {
         'username': username,
         'batch_id': instance.id,
-        'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type,
+        'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type],
         'quantity': instance.quantity,
         'value': instance.value + ' GHS',
         'total_value': str(int(instance.value) * int(instance.quantity)) + ' GHS'
