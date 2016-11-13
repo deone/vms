@@ -36,7 +36,7 @@ def send_generation_report(sender, **kwargs):
     }
 
     username = instance.user.username
-    if instance.user.first_name is not '':
+    if instance.user.first_name:
         username = instance.user.get_full_name()
 
     context = {
