@@ -224,7 +224,7 @@ class VoucherFetchTests(TestCase):
 
     def test_fetch_standard_vouchers_post(self):
         response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'STD'})
+            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'STD', 'phone_number': '0231802940'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
@@ -233,7 +233,7 @@ class VoucherFetchTests(TestCase):
 
     def test_fetch_instant_vouchers_post(self):
         response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'INS'})
+            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'INS', 'phone_number': '0231802940'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
