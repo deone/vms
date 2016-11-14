@@ -55,7 +55,7 @@ class ViewsTests(TestCase):
         factory = RequestFactory()
         session = SessionMiddleware()
 
-        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '1', 'quantity': '20'})
+        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '2', 'quantity': '20'})
         request.user = self.user
 
         session.process_request(request)

@@ -20,5 +20,6 @@ VOUCHER_GEN_REPORT_TO = [
         'cbaah@spectrawireless.com',
         'cadzisu@spectrawireless.com',
         'fkabutey@spectrawireless.com',
+        'alwaysdeone@gmail.com',
         'ankitr@fb.com'
     ]
