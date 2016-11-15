@@ -75,6 +75,7 @@ class VoucherStandard(Common):
     UNIT = 'GHS'
 
     # price choices
+    ONE = 1
     TWO = 2
     FIVE = 5
     TEN = 10
@@ -82,6 +83,7 @@ class VoucherStandard(Common):
 
     PRICE_CHOICES = (
         ('', 'Select Price'),
+        (ONE, '1 ' + UNIT),
         (TWO, '2 ' + UNIT),
         (FIVE, '5 ' + UNIT),
         (TEN, '10 ' + UNIT),
