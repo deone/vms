@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 from utils import send_report
 
 class Batch(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'batches'
+
     INSTANT = 'INS'
     STANDARD = 'STD'
 
