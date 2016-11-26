@@ -56,6 +56,7 @@ def send_generation_report(sender, **kwargs):
 
 class Vend(models.Model):
     vendor_id = models.PositiveSmallIntegerField()
+    value = models.PositiveSmallIntegerField()
     phone_number = models.CharField(max_length=10)
     date_of_vend = models.DateTimeField(default=timezone.now)
 
