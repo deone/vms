@@ -58,6 +58,8 @@ class Vend(models.Model):
     vendor_id = models.PositiveSmallIntegerField()
     value = models.PositiveSmallIntegerField()
     phone_number = models.CharField(max_length=10)
+    voucher_type = models.CharField(max_length=3, choices=Batch.TYPE_CHOICES)
+    quantity = models.PositiveSmallIntegerField()
     date_of_vend = models.DateTimeField(default=timezone.now)
 
 class Common(models.Model):

@@ -103,7 +103,7 @@ def fetch_vouchers(request):
         phone_number = request.POST['phone_number']
 
         # - create a vend entry.
-        vend = Vend.objects.create(vendor_id=vendor_id, phone_number=phone_number)
+        vend = Vend.objects.create(vendor_id=vendor_id, phone_number=phone_number, value=value, voucher_type=voucher_type, quantity=quantity)
 
         # - fetch vouchers based on voucher_type.
         if voucher_type == 'STD':
