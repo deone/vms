@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^invalidate/$', views.invalidate, name='invalidate'),
     url(r'^fetch/$', views.fetch_vouchers, name='fetch_vouchers'),
     url(r'^values/$', views.fetch_voucher_values, name='fetch_voucher_values'),
+    url(r'^vends/(?P<vendor_id>\d+)/$', views.get_vends, name='get_vends'),
 ]

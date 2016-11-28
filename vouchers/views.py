@@ -93,6 +93,12 @@ def download(request, pk):
     return response
 
 @ensure_csrf_cookie
+def get_vends(request, vendor_id):
+    vends = Vend.objects.get(vendor_id=vendor_id)
+    print vends
+    return JsonResponse({'status': 'ok'})
+
+@ensure_csrf_cookie
 def fetch_vouchers(request):
     response = {}
     if request.method == 'POST':
