@@ -68,6 +68,21 @@ def sell(request):
     return JsonResponse(response)
 
 @ensure_csrf_cookie
+def get_vends(request, vendor_id):
+    response = {}
+    if request.method == 'POST':
+        pass
+    else:
+        # Fetch all vends belonging to vendor limiting it to the first 100 entries
+        vends = [v.to_dict() for v in Vend.objects.filter(vendor_id=vendor_id)[:100]]
+        if vends != []:
+            response.update({'code': 200, 'result': vends})
+        else:
+            response.update({'code': 404, 'message': 'No vends found.'})
+
+    return JsonResponse(response)
+
+@ensure_csrf_cookie
 def fetch_voucher_values(request):
     voucher_type = request.GET['voucher_type']
     response = {}
@@ -91,12 +106,6 @@ def download(request, pk):
     response = HttpResponse(file_generator(_file), content_type='text/plain')
     response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
     return response
-
-@ensure_csrf_cookie
-def get_vends(request, vendor_id):
-    vends = Vend.objects.get(vendor_id=vendor_id)
-    print vends
-    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def fetch_vouchers(request):
