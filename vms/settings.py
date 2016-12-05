@@ -121,8 +121,7 @@ LOGIN_REDIRECT_URL = 'vouchers:batches'
 PIN_LENGTH = 14
 VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 
-# Billing System settings
-BILLING_URL = "http://localhost:8000/"
+BILLING_URL = "https://billing-deone.c9users.io/"
 PACKAGES_URL = BILLING_URL + "packages/"
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
