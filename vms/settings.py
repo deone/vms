@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'vms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vms',
-        'USER': 'vms',
+        'NAME': 'vms_master',
+        'USER': 'vms_master',
         'PASSWORD': 'vmspass',
         'HOST': '127.0.0.1',
         'PORT': '3306'
