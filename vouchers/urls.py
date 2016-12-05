@@ -25,7 +25,6 @@ urlpatterns = [
     url(r'^delete/$', views.delete_stub, name='delete'),
     url(r'^redeem/$', views.redeem, name='redeem'),
     url(r'^invalidate/$', views.invalidate, name='invalidate'),
-    url(r'^fetch/$', views.fetch_vouchers, name='fetch_vouchers'),
+    url(r'^get/$', views.get_voucher, name='get_voucher'),
     url(r'^values/$', views.fetch_voucher_values, name='fetch_voucher_values'),
-    url(r'^vends/(?P<vendor_id>\d+)/$', views.get_vends, name='get_vends'),
 ]

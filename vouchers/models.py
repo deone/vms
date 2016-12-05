@@ -82,7 +82,6 @@ class Common(models.Model):
     is_sold = models.BooleanField(default=False)
     sold_to = models.PositiveSmallIntegerField(null=True)
     batch = models.ForeignKey(Batch)
-    vend = models.ForeignKey(Vend, null=True)
 
 class VoucherInstant(Common):
     username = models.CharField(max_length=24, unique=True) # e.g.uxuw@spectrawireless.com
