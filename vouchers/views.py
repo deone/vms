@@ -108,35 +108,29 @@ def download(request, pk):
     return response
 
 @ensure_csrf_cookie
-def fetch_vouchers(request):
+def get_voucher(request):
     response = {}
     if request.method == 'POST':
         vendor_id = request.POST['vendor_id']
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
-        quantity = request.POST['quantity']
-        phone_number = request.POST['phone_number']
-
-        # - create a vend entry.
-        vend = Vend.objects.create(vendor_id=vendor_id, phone_number=phone_number, value=value, voucher_type=voucher_type, quantity=quantity)
 
         # - fetch vouchers based on voucher_type.
         if voucher_type == 'STD':
-            vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]
+            vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:1]
         elif voucher_type == 'INS':
-            vouchers = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:quantity]
+            vouchers = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:1]
 
         voucher_list = []
         for v in vouchers:
             if isinstance(v, VoucherStandard):
-                voucher_list.append([zeropad(v.pk), v.pin])
+                voucher_list.append([v.pk, v.pin])
             elif isinstance(v, VoucherInstant):
-                voucher_list.append([zeropad(v.pk), v.username, v.password])
+                voucher_list.append([v.pk, v.username, v.password])
 
             # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=vend.
             v.is_sold = True
             v.sold_to = vendor_id
-            v.vend = vend
             v.save()
         response.update({'code': 200, 'results': voucher_list})
     else:
