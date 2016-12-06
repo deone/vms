@@ -138,3 +138,6 @@ EMAIL_HOST = '74.55.86.74'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'deone'
 EMAIL_HOST_PASSWORD = '@dune369'
+
+# Report recipients
+VOUCHER_GEN_REPORT_TO = ['alwaysdeone@gmail.com']
