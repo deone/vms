@@ -222,26 +222,24 @@ class VoucherFetchTests(TestCase):
         voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=batch_one_ins)
         voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=batch_one_ins)
 
-    def test_fetch_standard_vouchers_post(self):
-        response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'STD', 'phone_number': '0231802940'})
+    def test_get_standard_voucher_post(self):
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'vendor_id': 2, 'value': 2, 'voucher_type': 'STD', 'phone_number': '0231802940'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
         self.assertEqual(value['results'][0][1], '12345678901236')
-        self.assertEqual(value['results'][1][1], '12345678901238')
 
-    def test_fetch_instant_vouchers_post(self):
-        response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'INS', 'phone_number': '0231802940'})
+    def test_get_instant_voucher_post(self):
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'vendor_id': 2, 'value': 2, 'voucher_type': 'INS', 'phone_number': '0231802940'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
         self.assertEqual(value['results'][0][1], 'a@a.com')
-        self.assertEqual(value['results'][1][1], 'b@b.com')
 
-    def test_fetch_vouchers_get(self):
-        response = self.c.get(reverse('vouchers:fetch_vouchers'), {'voucher_type': 'STD'})
+    def test_get_vouchers_get(self):
+        response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(value['status'], 'ok')
@@ -251,14 +249,14 @@ class VoucherFetchTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'], [1, 2, 5])
+        self.assertEqual(value['results'], ['1.00', '2.00', '5.00'])
 
     def test_fetch_instant_voucher_values(self):
         response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'INS'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'], [2])
+        self.assertEqual(value['results'], ['2.00'])
 
     def test_sell_get(self):
         response = self.c.get(reverse('vouchers:sell'))

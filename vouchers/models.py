@@ -21,7 +21,7 @@ class Batch(models.Model):
     )
 
     user = models.ForeignKey(User)
-    value = models.PositiveSmallIntegerField()
+    value = models.DecimalField(max_digits=4, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
     voucher_type = models.CharField(max_length=3, choices=TYPE_CHOICES)
@@ -49,7 +49,7 @@ def send_generation_report(sender, **kwargs):
         'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type],
         'quantity': instance.quantity,
         'value': str(instance.value) + ' GHS',
-        'total_value': str(int(instance.value) * int(instance.quantity)) + ' GHS'
+        'total_value': str(instance.value * int(instance.quantity)) + ' GHS'
     }
 
     send_report(context)
@@ -76,7 +76,7 @@ class Common(models.Model):
     class Meta:
         abstract = True
 
-    value = models.PositiveSmallIntegerField()
+    value = models.DecimalField(max_digits=4, decimal_places=2)
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)

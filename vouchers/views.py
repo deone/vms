@@ -115,7 +115,7 @@ def get_voucher(request):
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
 
-        # - fetch vouchers based on voucher_type.
+        # - Get one voucher, based on voucher_type.
         if voucher_type == 'STD':
             vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:1]
         elif voucher_type == 'INS':

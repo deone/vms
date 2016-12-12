@@ -41,7 +41,7 @@ class GenerateInstantVoucherForm(Common):
 
         packages_dict = dict(get_packages())
         price = packages_dict[int(package_id)].split(' ')[3]
-
+        
         batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='INS')
         generate_instant_vouchers(price, quantity, batch, package_id)
 
