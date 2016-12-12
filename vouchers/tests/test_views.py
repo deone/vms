@@ -202,7 +202,7 @@ class APITests(TestCase):
         # Delete stub
         self.c.post(reverse('vouchers:delete'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
 
-class VoucherFetchTests(TestCase):
+class VoucherGetTests(TestCase):
 
     def setUp(self):
         self.c = Client()
