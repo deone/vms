@@ -49,7 +49,7 @@ def send_generation_report(sender, **kwargs):
         'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type],
         'quantity': instance.quantity,
         'value': str(instance.value) + ' GHS',
-        'total_value': str(instance.value * int(instance.quantity)) + ' GHS'
+        'total_value': str(int(instance.value) * int(instance.quantity)) + ' GHS'
     }
 
     send_report(context)
