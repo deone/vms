@@ -6,7 +6,7 @@ IP = '154.117.8.18'
 ALLOWED_HOSTS = [IP]
 
 # Billing settings
-BILLING_URL = "http://" + IP + ":8080/"
+BILLING_URL = "http://" + IP + "/"
 PACKAGES_URL = BILLING_URL + "packages/"
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
