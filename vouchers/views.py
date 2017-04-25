@@ -108,35 +108,36 @@ def download(request, pk):
     return response
 
 @ensure_csrf_cookie
-def get_voucher(request):
-    response = {}
+def get(request):
+    ### Receive voucher type and value. Return one voucher that isn't sold.
+    ### Return 404 status and error message if voucher isn't found
+
+    # Parameters:
+    # - value: string e.g '1', '2'
+    # - voucher_type: either 'STD' or 'INS'
+    # Return voucher:
+    # - {'pin': '12345678901234'}
+    # or error:
+    # - {'message': 'Voucher not available.'}, HTTP status: 500
+
     if request.method == 'POST':
-        vendor_id = request.POST['vendor_id']
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
 
-        # - Get one voucher, based on voucher_type.
         if voucher_type == 'STD':
-            vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:1]
-        elif voucher_type == 'INS':
-            vouchers = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:1]
+            # Return a list of one voucher
+            voucher_list = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:1]
+            if voucher_list:
+                return JsonResponse({'pin': voucher_list[0].pin})
+        else:
+            voucher_list = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:1]
+            if voucher_list:
+                return JsonResponse({'username': voucher_list[0].username, 'password': voucher_list[0].password})
 
-        voucher_list = []
-        for v in vouchers:
-            if isinstance(v, VoucherStandard):
-                voucher_list.append([v.pk, v.pin])
-            elif isinstance(v, VoucherInstant):
-                voucher_list.append([v.pk, v.username, v.password])
-
-            # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=vend.
-            v.is_sold = True
-            v.sold_to = vendor_id
-            v.save()
-        response.update({'code': 200, 'results': voucher_list})
+        if not voucher_list:
+            return JsonResponse({'message': 'Voucher not available.'}, status=404)
     else:
-        response.update({'status': 'ok'})
-
-    return JsonResponse(response)
+        return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def redeem(request):

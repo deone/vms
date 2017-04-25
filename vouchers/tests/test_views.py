@@ -224,19 +224,19 @@ class VoucherGetTests(TestCase):
 
     def test_get_standard_voucher_post(self):
         response = self.c.post(reverse('vouchers:get_voucher'),
-            data={'vendor_id': 2, 'value': 2, 'voucher_type': 'STD', 'phone_number': '0231802940'})
+            data={'value': 2, 'voucher_type': 'STD'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'][0][1], '12345678901236')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(value, {'pin': '12345678901236'})
 
     def test_get_instant_voucher_post(self):
         response = self.c.post(reverse('vouchers:get_voucher'),
-            data={'vendor_id': 2, 'value': 2, 'voucher_type': 'INS', 'phone_number': '0231802940'})
+            data={'value': 2, 'voucher_type': 'INS'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'][0][1], 'a@a.com')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(value, {'username': 'a@a.com', 'password': '12345'})
 
     def test_get_vouchers_get(self):
         response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})
