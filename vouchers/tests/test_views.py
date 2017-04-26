@@ -228,7 +228,7 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value, {'pin': '12345678901236'})
+        self.assertEqual(value, {'pin': '12345678901236', 'serial_no': 48})
 
     def test_get_instant_voucher_post(self):
         response = self.c.post(reverse('vouchers:get_voucher'),
@@ -236,7 +236,7 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value, {'username': 'a@a.com', 'password': '12345'})
+        self.assertEqual(value, {'username': 'a@a.com', 'password': '12345', 'serial_no': 47})
 
     def test_get_voucher_voucher_not_available(self):
         # Delete vouchers

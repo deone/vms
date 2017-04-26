@@ -132,10 +132,15 @@ def get(request):
         if not voucher_list:
             return JsonResponse({'message': 'Voucher not available.', 'code': 'unavailable'}, status=404)
         else:
+            response = {'serial_no': voucher_list[0].pk}
             if isinstance(voucher_list[0], VoucherInstant):
-                return JsonResponse({'username': voucher_list[0].username, 'password': voucher_list[0].password})
+                response.update({
+                    'username': voucher_list[0].username,
+                    'password': voucher_list[0].password
+                })
             else:
-                return JsonResponse({'pin': voucher_list[0].pin})
+                response.update({'pin': voucher_list[0].pin})
+            return JsonResponse(response)
     else:
         return JsonResponse({'status': 'ok'})
 
@@ -164,6 +169,14 @@ def redeem(request):
 
 @ensure_csrf_cookie
 def invalidate(request):
+    ### Receive voucher id and vendor id. Set voucher.is_valid to False and mark as sold.
+    ### Return success message. 
+
+    # Parameters:
+    # - voucher_id: string e.g '1', '2'
+    # - vendor_id: string e.g '1', '2'
+    # Return success message:
+    # - {'message': 'Success!'}
     response = {}
 
     if request.method == 'POST':
