@@ -208,19 +208,19 @@ class VoucherGetTests(TestCase):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
 
-        batch_one = Batch.objects.create(user=self.user, value=1, quantity=1, voucher_type='STD')
-        batch_two = Batch.objects.create(user=self.user, value=2, quantity=1, voucher_type='STD')
-        batch_five = Batch.objects.create(user=self.user, value=5, quantity=1, voucher_type='STD')
+        self.batch_one = Batch.objects.create(user=self.user, value=1, quantity=1, voucher_type='STD')
+        self.batch_two = Batch.objects.create(user=self.user, value=2, quantity=1, voucher_type='STD')
+        self.batch_five = Batch.objects.create(user=self.user, value=5, quantity=1, voucher_type='STD')
 
-        voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=batch_one)
-        voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=batch_two)
-        voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=batch_two)
-        voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
+        voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=self.batch_one)
+        voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=self.batch_two)
+        voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=self.batch_two)
+        voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=self.batch_five)
 
-        batch_one_ins = Batch.objects.create(user=self.user, value=2, quantity=2, voucher_type='INS')
+        self.batch_one_ins = Batch.objects.create(user=self.user, value=2, quantity=2, voucher_type='INS')
 
-        voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=batch_one_ins)
-        voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=batch_one_ins)
+        voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=self.batch_one_ins)
+        voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=self.batch_one_ins)
 
     def test_get_standard_voucher_post(self):
         response = self.c.post(reverse('vouchers:get_voucher'),
@@ -238,7 +238,21 @@ class VoucherGetTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(value, {'username': 'a@a.com', 'password': '12345'})
 
-    def test_get_vouchers_get(self):
+    def test_get_voucher_voucher_not_available(self):
+        # Delete vouchers
+        self.batch_one.delete()
+        self.batch_two.delete()
+        self.batch_five.delete()
+        self.batch_one_ins.delete()
+
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'value': 2, 'voucher_type': 'INS'})
+        value = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(value, {'message': 'Voucher not available.'})
+
+    def test_get_voucher_get(self):
         response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
