@@ -250,7 +250,7 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(value, {'message': 'Voucher not available.', 'code': 'unavailable'})
+        self.assertEqual(value, {'message': 'Voucher not available.', 'code': 'voucher-unavailable'})
 
     def test_get_voucher_get(self):
         response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})

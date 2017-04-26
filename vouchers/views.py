@@ -130,7 +130,7 @@ def get(request):
         # Return a list of one voucher
         voucher_list = model.objects.filter(value=value).exclude(is_sold=True)[:1]
         if not voucher_list:
-            return JsonResponse({'message': 'Voucher not available.', 'code': 'unavailable'}, status=404)
+            return JsonResponse({'message': 'Voucher not available.', 'code': 'voucher-unavailable'}, status=404)
         else:
             response = {'serial_no': voucher_list[0].pk}
             if isinstance(voucher_list[0], VoucherInstant):
