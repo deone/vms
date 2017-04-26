@@ -124,18 +124,18 @@ def get(request):
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
 
-        if voucher_type == 'STD':
-            # Return a list of one voucher
-            voucher_list = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:1]
-            if voucher_list:
-                return JsonResponse({'pin': voucher_list[0].pin})
-        else:
-            voucher_list = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:1]
-            if voucher_list:
-                return JsonResponse({'username': voucher_list[0].username, 'password': voucher_list[0].password})
+        model_class_map = {'INS': VoucherInstant, 'STD': VoucherStandard}
+        model = model_class_map[voucher_type]
 
+        # Return a list of one voucher
+        voucher_list = model.objects.filter(value=value).exclude(is_sold=True)[:1]
         if not voucher_list:
             return JsonResponse({'message': 'Voucher not available.'}, status=404)
+        else:
+            if isinstance(voucher_list[0], VoucherInstant):
+                return JsonResponse({'username': voucher_list[0].username, 'password': voucher_list[0].password})
+            else:
+                return JsonResponse({'pin': voucher_list[0].pin})
     else:
         return JsonResponse({'status': 'ok'})
 
