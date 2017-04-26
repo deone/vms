@@ -128,7 +128,7 @@ def get(request):
         model = model_class_map[voucher_type]
 
         # Return a list of one voucher
-        voucher_list = model.objects.filter(value=value).exclude(is_sold=True)[:1]
+        voucher_list = model.objects.filter(value=value).exclude(is_valid=False)[:1]
         if not voucher_list:
             return JsonResponse({'message': 'Voucher not available.', 'code': 'voucher-unavailable'}, status=404)
         else:
@@ -141,8 +141,8 @@ def get(request):
             else:
                 response.update({'pin': voucher_list[0].pin})
             return JsonResponse(response)
-    else:
-        return JsonResponse({'status': 'ok'})
+
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def redeem(request):
