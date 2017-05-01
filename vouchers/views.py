@@ -214,7 +214,6 @@ def insert_stub(request):
 @ensure_csrf_cookie
 def delete_stub(request):
     """ This function is strictly for testing the API. """
-    response = {}
     if request.method == 'POST':
         voucher_type = request.POST['voucher_type']
         pk = request.POST['voucher_id']
@@ -226,8 +225,7 @@ def delete_stub(request):
 
         voucher.batch.delete()
         voucher.delete()
-        response.update({'code': 200})
-    else:
-        response.update({'status': 'ok'})
 
-    return JsonResponse(response)
+        return JsonResponse({'message': 'Success!'})
+
+    return JsonResponse({'status': 'ok'})

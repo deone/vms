@@ -268,4 +268,4 @@ class InstantVoucherTests(TestCase):
             data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
+        self.assertEqual(value['message'], 'Success!')
