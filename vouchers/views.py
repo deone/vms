@@ -145,29 +145,6 @@ def get(request):
     return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
-def redeem(request):
-    response = {}
-
-    if request.method == 'POST':
-        pin = request.POST['pin']
-        try:
-            voucher = VoucherStandard.objects.get(pin=pin)
-        except VoucherStandard.DoesNotExist:
-            response.update({'code': 404, 'message': 'Voucher does not exist.'})
-        else:
-            if voucher.is_sold:
-                if not voucher.is_valid:
-                    response.update({'code': 500, 'message': 'Voucher has been used.'})
-                else:
-                    response.update({'code': 200, 'value': voucher.value, 'serial_number': voucher.pk})
-            else:
-                response.update({'code': 500, 'message': 'You cannot use this voucher. It has not been sold.'})
-    else:
-        response.update({'status': 'ok'})
-
-    return JsonResponse(response)
-
-@ensure_csrf_cookie
 def invalidate(request):
     ### Receive voucher id and vendor id. Set voucher.is_valid to False and mark as sold.
     ### Return success message. 
@@ -176,24 +153,40 @@ def invalidate(request):
     # - voucher_id: string e.g '1', '2'
     # - vendor_id: string e.g '1', '2'
     # Return success message:
-    # - {'message': 'Success!'}
-    response = {}
+    # - {'message': 'Voucher invalidated'}
 
     if request.method == 'POST':
-        pk = request.POST['id']
-        voucher = VoucherStandard.objects.get(pk=pk)
+        voucher_id = request.POST['voucher_id']
+        vendor_id = request.POST['vendor_id']
+
+        voucher = VoucherStandard.objects.get(pk=voucher_id)
+
         voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
         voucher.is_valid = False
-        voucher.save()
-        response.update({'code': 200})
-    else:
-        response.update({'status': 'ok'})
+        voucher.sold_to = vendor_id
 
-    return JsonResponse(response)
+        try:
+            voucher.save()
+        except:
+            return JsonResponse({'message': 'Voucher invalidation failed.', 'code': 'voucher-invalidate-failed'}, status=500)
+        else:
+            return JsonResponse({'message': 'Voucher invalidated.'})
+
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def insert_stub(request):
-    """ This function is strictly for testing the API. """
+    ### This function is strictly for testing the API.
+    ### Take in user object, price, quantity and voucher type. Create a batch and vouchers.
+    ### Return batch object.
+
+    # Parameters:
+    # - user object
+    # - price: string e.g. '1', '2'
+    # - quantity: string e.g. '20'
+    # - voucher type: e.g. 'STD', 'INS'
+    # Return batch object
+
     response = {}
     if request.method == 'POST':
         voucher_type = request.POST['voucher_type']

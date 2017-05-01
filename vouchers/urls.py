@@ -23,8 +23,7 @@ urlpatterns = [
     url(r'^batches/$', views.BatchList.as_view(), name='batches'),
     url(r'^insert/$', views.insert_stub, name='insert'),
     url(r'^delete/$', views.delete_stub, name='delete'),
-    url(r'^redeem/$', views.redeem, name='redeem'),
-    url(r'^invalidate/$', views.invalidate, name='invalidate'),
+    url(r'^invalidate$', views.invalidate, name='invalidate'),
     url(r'^get$', views.get, name='get_voucher'),
     url(r'^values/$', views.fetch_voucher_values, name='fetch_voucher_values'),
 ]

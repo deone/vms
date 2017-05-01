@@ -141,16 +141,16 @@ class APITests(TestCase):
 
     def check_response(self, response):
         value = json.loads(response.content)
-
         self.assertEqual(value['status'], 'ok')
-
-    def test_redeem_get(self):
-        response = self.c.get(reverse('vouchers:redeem'))
-        self.check_response(response)
 
     def test_invalidate_get(self):
         response = self.c.get(reverse('vouchers:invalidate'))
         self.check_response(response)
+
+    def test_invalidate_post(self):
+        response = self.c.post(reverse('vouchers:invalidate'), data={'voucher_id': self.voucher['id'], 'vendor_id': '1'})
+        value = json.loads(response.content)
+        self.assertEqual(value['message'], 'Voucher invalidated.')
 
     def test_insert_stub_get(self):
         response = self.c.get(reverse('vouchers:insert'))
@@ -159,44 +159,6 @@ class APITests(TestCase):
     def test_delete_stub_get(self):
         response = self.c.get(reverse('vouchers:delete'))
         self.check_response(response)
-
-    def test_redeem_post(self):
-        # Write tests
-        voucher = VoucherStandard.objects.get(pin=self.data['pin'])
-        voucher.is_sold = True
-        voucher.save()
-
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 200)
-
-    def test_redeem_voucher_does_not_exist(self):
-        response = self.c.post(reverse('vouchers:redeem'), data={'pin': 12345678901231})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 404)
-
-    def test_redeem_used_voucher(self):
-        # Invalidate
-        self.c.post(reverse('vouchers:invalidate'), data={'id': self.voucher['id']})
-
-        # Test
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 500)
-
-    def test_redeem_unsold_voucher(self):
-        voucher = VoucherStandard.objects.get(pk=self.voucher['id'])
-        voucher.is_sold = False
-        voucher.save()
-
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 500)
-        self.assertEqual(value['message'], 'You cannot use this voucher. It has not been sold.')
 
     def tearDown(self):
         # Delete stub
@@ -228,7 +190,8 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value, {'pin': '12345678901236', 'serial_no': 48})
+        self.assertEqual(value['pin'], '12345678901236')
+        self.assertTrue('serial_no' in value)
 
     def test_get_instant_voucher_post(self):
         response = self.c.post(reverse('vouchers:get_voucher'),
@@ -236,7 +199,9 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value, {'username': 'a@a.com', 'password': '12345', 'serial_no': 47})
+        self.assertEqual(value['username'], 'a@a.com')
+        self.assertEqual(value['password'], '12345')
+        self.assertTrue('serial_no' in value)
 
     def test_get_voucher_voucher_not_available(self):
         # Delete vouchers
