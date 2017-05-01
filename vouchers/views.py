@@ -177,41 +177,39 @@ def invalidate(request):
 @ensure_csrf_cookie
 def insert_stub(request):
     ### This function is strictly for testing the API.
-    ### Take in user object, price, quantity and voucher type. Create a batch and vouchers.
-    ### Return batch object.
+    ### Take in user object, voucher type, username and password
+    ### for instant vouchers and pin for standard vouchers
+    ### Create a batch and a voucher.
+    ### Return voucher.
 
     # Parameters:
-    # - user object
-    # - price: string e.g. '1', '2'
-    # - quantity: string e.g. '20'
+    # - creator: string
     # - voucher type: e.g. 'STD', 'INS'
-    # Return batch object
+    # - username: string
+    # - password: string
+    # - pin: string
+    # Return voucher object
 
-    response = {}
     if request.method == 'POST':
-        voucher_type = request.POST['voucher_type']
         value = 5
+        quantity = 1
+        creator = request.POST['creator']
+        voucher_type = request.POST['voucher_type']
 
-        try:
-            user = User.objects.create_user('p@p.com', 'p@p.com', '12345')
-        except IntegrityError:
-            user = User.objects.get(username='p@p.com')
+        user = User.objects.get(username=creator)
+        batch = Batch.objects.create(user=user, value=value, quantity=quantity, voucher_type=voucher_type)
 
-        batch = Batch.objects.create(user=user, value=value, quantity=1, voucher_type=voucher_type)
-
-        if voucher_type=='STD':
+        if voucher_type == 'STD':
             pin = request.POST['pin']
             voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
-            response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
-        elif voucher_type=='INS':
+            return JsonResponse({'id': voucher.pk, 'pin': voucher.pin})
+        else:
             username = request.POST['username']
             password = request.POST['password']
             voucher = VoucherInstant.objects.create(batch=batch, username=username, password=password, value=value)
-            response.update({'code': 200, 'id': voucher.pk, 'username': voucher.username})
-    else:
-        response.update({'status': 'ok'})
+            return JsonResponse({'id': voucher.pk, 'username': voucher.username})
 
-    return JsonResponse(response)
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def delete_stub(request):
