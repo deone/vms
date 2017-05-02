@@ -165,12 +165,8 @@ def invalidate(request):
         voucher.is_valid = False
         voucher.sold_to = vendor_id
 
-        try:
-            voucher.save()
-        except:
-            return JsonResponse({'message': 'Voucher invalidation failed.', 'code': 'voucher-invalidate-failed'}, status=500)
-        else:
-            return JsonResponse({'message': 'Voucher invalidated.'})
+        voucher.save()
+        return JsonResponse({'message': 'Voucher invalidated.'})
 
     return JsonResponse({'status': 'ok'})
 
