@@ -238,19 +238,6 @@ class VoucherGetTests(TestCase):
         self.assertEqual(value['code'], 200)
         self.assertEqual(value['results'], ['2.00'])
 
-    def test_sell_get(self):
-        response = self.c.get(reverse('vouchers:sell'))
-        value = json.loads(response.content)
-
-        self.assertEqual(value['status'], 'ok')
-
-    def test_sell_post(self):
-        response = self.c.post(reverse('vouchers:sell'), data={'pin': '12345678901236'})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 200)
-        self.assertTrue(value['result']['is_sold'])
-
 class InstantVoucherTests(TestCase):
 
     def setUp(self):
