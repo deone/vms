@@ -56,24 +56,6 @@ def send_generation_report(sender, **kwargs):
 
     send_report(context)
 
-class Vend(models.Model):
-    vendor_id = models.PositiveSmallIntegerField()
-    value = models.PositiveSmallIntegerField()
-    phone_number = models.CharField(max_length=10)
-    voucher_type = models.CharField(max_length=3, choices=Batch.TYPE_CHOICES)
-    quantity = models.PositiveSmallIntegerField()
-    date_of_vend = models.DateTimeField(default=timezone.now)
-    
-    def to_dict(self):
-        return {
-            'vendor_id': self.vendor_id,
-            'value': self.value,
-            'phone_number': self.phone_number,
-            'voucher_type': self.voucher_type,
-            'quantity': self.quantity,
-            'date_of_vend': str(self.date_of_vend),
-        }
-
 class Common(models.Model):
     class Meta:
         abstract = True
