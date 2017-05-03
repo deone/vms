@@ -7,6 +7,9 @@ class VoucherModelsTests(TestCase):
 
     def setUp(self):
         user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
+        user.first_name = 'Dayo'
+        user.last_name = 'Osikoya'
+        user.save()
         self.batch = Batch.objects.create(voucher_type='STD', value=2, quantity=5, user=user)
 
     def test_batch__str__(self):
