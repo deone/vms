@@ -52,37 +52,6 @@ def file_generator(_file):
             yield line
 
 @ensure_csrf_cookie
-def sell(request):
-    response = {}
-    if request.method == 'POST':
-        pin = request.POST['pin']
-        voucher = VoucherStandard.objects.get(pin=pin)
-        voucher.is_sold = True
-        voucher.save()
-        voucher.__dict__.pop("_state")
-        voucher.__dict__.pop("date_created")
-        response.update({'code': 200, 'result': voucher.__dict__})
-    else:
-        response.update({'status': 'ok'})
-
-    return JsonResponse(response)
-
-@ensure_csrf_cookie
-def get_vends(request, vendor_id):
-    response = {}
-    if request.method == 'POST':
-        pass
-    else:
-        # Fetch all vends belonging to vendor limiting it to the first 100 entries
-        vends = [v.to_dict() for v in Vend.objects.filter(vendor_id=vendor_id)[:100]]
-        if vends != []:
-            response.update({'code': 200, 'result': vends})
-        else:
-            response.update({'code': 404, 'message': 'No vends found.'})
-
-    return JsonResponse(response)
-
-@ensure_csrf_cookie
 def fetch_voucher_values(request):
     voucher_type = request.GET['voucher_type']
     response = {}
