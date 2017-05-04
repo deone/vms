@@ -112,24 +112,37 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
 
-LOGIN_URL = 'login'
-
-LOGIN_REDIRECT_URL = 'vouchers:batches'
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static_live")
 
-PIN_LENGTH = 14
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'vouchers:batches'
 
+# Voucher settings
+PIN_LENGTH = 14
 VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 
+<<<<<<< HEAD
 BILLING_URL = "https://billing-deone.c9users.io/"
+=======
+BILLING_URL = "http://billing-deone.c9users.io/"
+>>>>>>> xwf
 PACKAGES_URL = BILLING_URL + "packages/"
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
 INSTANT_VOUCHER_INSERT_URL = PACKAGES_URL + "insert_vouchers/"
 
+# Instant Voucher settings
 DOMAIN = 'sw.gh'
-
 USERNAME_LENGTH = 4
-
 PASSWORD_LENGTH = 4
+
+# Email settings
+DEFAULT_FROM_EMAIL = 'Spectra VMS<incisiaappmailer@gmail.com>'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'incisiaappmailer@gmail.com'
+EMAIL_HOST_PASSWORD = '#$gh78@%'
+EMAIL_USE_TLS = True
+
+# Report recipients
+VOUCHER_GEN_REPORT_TO = ['alwaysdeone@gmail.com']

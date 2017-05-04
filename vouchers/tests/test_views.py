@@ -55,7 +55,7 @@ class ViewsTests(TestCase):
         factory = RequestFactory()
         session = SessionMiddleware()
 
-        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '1', 'quantity': '20'})
+        request = factory.post(reverse('vouchers:generate_standard'), data={'price': '2', 'quantity': '20'})
         request.user = self.user
 
         session.process_request(request)
@@ -121,7 +121,7 @@ class ViewsTests(TestCase):
     def test_download(self):
         price = 1
         quantity = 5
-        batch = Batch.objects.create(value=price, quantity=quantity, voucher_type='STD')
+        batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='STD')
         generate_standard_vouchers(price, quantity, batch)
 
         self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
@@ -135,21 +135,22 @@ class APITests(TestCase):
     def setUp(self):
         # Create stub
         self.c = Client()
-        self.data = {'pin': '12345678901234', 'voucher_type': 'STD'}
+        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
+        self.data = {'creator': self.user.username, 'pin': '12345678901234', 'voucher_type': 'STD'}
         self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
 
     def check_response(self, response):
         value = json.loads(response.content)
-
         self.assertEqual(value['status'], 'ok')
-
-    def test_redeem_get(self):
-        response = self.c.get(reverse('vouchers:redeem'))
-        self.check_response(response)
 
     def test_invalidate_get(self):
         response = self.c.get(reverse('vouchers:invalidate'))
         self.check_response(response)
+
+    def test_invalidate_post(self):
+        response = self.c.post(reverse('vouchers:invalidate'), data={'voucher_id': self.voucher['id'], 'vendor_id': '1'})
+        value = json.loads(response.content)
+        self.assertEqual(value['message'], 'Voucher invalidated.')
 
     def test_insert_stub_get(self):
         response = self.c.get(reverse('vouchers:insert'))
@@ -159,87 +160,66 @@ class APITests(TestCase):
         response = self.c.get(reverse('vouchers:delete'))
         self.check_response(response)
 
-    def test_redeem_post(self):
-        # Write tests
-        voucher = VoucherStandard.objects.get(pin=self.data['pin'])
-        voucher.is_sold = True
-        voucher.save()
-
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 200)
-
-    def test_redeem_voucher_does_not_exist(self):
-        response = self.c.post(reverse('vouchers:redeem'), data={'pin': 12345678901231})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 404)
-
-    def test_redeem_used_voucher(self):
-        # Invalidate
-        self.c.post(reverse('vouchers:invalidate'), data={'id': self.voucher['id']})
-
-        # Test
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 500)
-
-    def test_redeem_unsold_voucher(self):
-        voucher = VoucherStandard.objects.get(pk=self.voucher['id'])
-        voucher.is_sold = False
-        voucher.save()
-
-        response = self.c.post(reverse('vouchers:redeem'), data=self.data)
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 500)
-        self.assertEqual(value['message'], 'You cannot use this voucher. It has not been sold.')
-
     def tearDown(self):
         # Delete stub
         self.c.post(reverse('vouchers:delete'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
+        self.user.delete()
 
-class VoucherFetchTests(TestCase):
+class VoucherGetTests(TestCase):
 
     def setUp(self):
         self.c = Client()
+        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
 
-        batch_one = Batch.objects.create(value=1, quantity=1, voucher_type='STD')
-        batch_two = Batch.objects.create(value=2, quantity=1, voucher_type='STD')
-        batch_five = Batch.objects.create(value=5, quantity=1, voucher_type='STD')
+        self.batch_one = Batch.objects.create(user=self.user, value=1, quantity=1, voucher_type='STD')
+        self.batch_two = Batch.objects.create(user=self.user, value=2, quantity=1, voucher_type='STD')
+        self.batch_five = Batch.objects.create(user=self.user, value=5, quantity=1, voucher_type='STD')
 
-        voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=batch_one)
-        voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=batch_two)
-        voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=batch_two)
-        voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=batch_five)
+        voucher_one = VoucherStandard.objects.create(pin='12345678901235', value=1, batch=self.batch_one)
+        voucher_two = VoucherStandard.objects.create(pin='12345678901236', value=2, batch=self.batch_two)
+        voucher_three = VoucherStandard.objects.create(pin='12345678901238', value=2, batch=self.batch_two)
+        voucher_five = VoucherStandard.objects.create(pin='12345678901237', value=5, batch=self.batch_five)
 
-        batch_one_ins = Batch.objects.create(value=2, quantity=2, voucher_type='INS')
+        self.batch_one_ins = Batch.objects.create(user=self.user, value=2, quantity=2, voucher_type='INS')
 
-        voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=batch_one_ins)
-        voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=batch_one_ins)
+        voucher_one_ins = VoucherInstant.objects.create(username='a@a.com', password='12345', value=2, batch=self.batch_one_ins)
+        voucher_two_ins = VoucherInstant.objects.create(username='b@b.com', password='12345', value=2, batch=self.batch_one_ins)
 
-    def test_fetch_standard_vouchers_post(self):
-        response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'STD'})
+    def test_get_standard_voucher_post(self):
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'value': 2, 'voucher_type': 'STD'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'][0][1], '12345678901236')
-        self.assertEqual(value['results'][1][1], '12345678901238')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(value['pin'], '12345678901236')
+        self.assertTrue('serial_no' in value)
 
-    def test_fetch_instant_vouchers_post(self):
-        response = self.c.post(reverse('vouchers:fetch_vouchers'),
-            data={'vendor_id': 2, 'quantity': 2, 'value': 2, 'voucher_type': 'INS'})
+    def test_get_instant_voucher_post(self):
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'value': 2, 'voucher_type': 'INS'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'][0][1], 'a@a.com')
-        self.assertEqual(value['results'][1][1], 'b@b.com')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(value['username'], 'a@a.com')
+        self.assertEqual(value['password'], '12345')
+        self.assertTrue('serial_no' in value)
 
-    def test_fetch_vouchers_get(self):
-        response = self.c.get(reverse('vouchers:fetch_vouchers'), {'voucher_type': 'STD'})
+    def test_get_voucher_voucher_not_available(self):
+        # Delete vouchers
+        self.batch_one.delete()
+        self.batch_two.delete()
+        self.batch_five.delete()
+        self.batch_one_ins.delete()
+
+        response = self.c.post(reverse('vouchers:get_voucher'),
+            data={'value': 2, 'voucher_type': 'INS'})
+        value = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(value, {'message': 'Voucher not available.', 'code': 'voucher-unavailable'})
+
+    def test_get_voucher_get(self):
+        response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(value['status'], 'ok')
@@ -249,38 +229,25 @@ class VoucherFetchTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'], [1, 2, 5])
+        self.assertEqual(value['results'], ['1.00', '2.00', '5.00'])
 
     def test_fetch_instant_voucher_values(self):
         response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'INS'})
         value = json.loads(response.content)
 
         self.assertEqual(value['code'], 200)
-        self.assertEqual(value['results'], [2])
-
-    def test_sell_get(self):
-        response = self.c.get(reverse('vouchers:sell'))
-        value = json.loads(response.content)
-
-        self.assertEqual(value['status'], 'ok')
-
-    def test_sell_post(self):
-        response = self.c.post(reverse('vouchers:sell'), data={'pin': '12345678901236'})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['code'], 200)
-        self.assertTrue(value['result']['is_sold'])
+        self.assertEqual(value['results'], ['2.00'])
 
 class InstantVoucherTests(TestCase):
 
     def setUp(self):
         self.c = Client()
+        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
         self.response = self.c.post(reverse('vouchers:insert'),
-            data={'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
+            data={'creator': self.user.username, 'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
         self.voucher = json.loads(self.response.content)
 
     def test_insert_stub(self):
-        self.assertEqual(self.voucher['code'], 200)
         self.assertEqual(self.voucher['username'], 'a@a.com')
 
     def test_delete_stub(self):
@@ -288,4 +255,4 @@ class InstantVoucherTests(TestCase):
             data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
+        self.assertEqual(value['message'], 'Success!')

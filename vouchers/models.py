@@ -1,7 +1,18 @@
 from django.db import models
 from django.utils import timezone
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from django.contrib.auth.models import User
+
+from utils import send_report
+
+from decimal import Decimal
 
 class Batch(models.Model):
+
+    class Meta:
+        verbose_name_plural = 'batches'
+
     INSTANT = 'INS'
     STANDARD = 'STD'
 
@@ -11,7 +22,8 @@ class Batch(models.Model):
         (INSTANT, 'Instant'),
     )
 
-    value = models.PositiveSmallIntegerField()
+    user = models.ForeignKey(User)
+    value = models.DecimalField(max_digits=4, decimal_places=2)
     quantity = models.PositiveSmallIntegerField()
     date_created = models.DateTimeField(default=timezone.now)
     voucher_type = models.CharField(max_length=3, choices=TYPE_CHOICES)
@@ -20,21 +32,40 @@ class Batch(models.Model):
     def __str__(self):
         return "%s %s %s" % (self.date_created.strftime('%B %d %Y, %I:%M%p'), str(self.value), str(self.quantity))
 
-class Vend(models.Model):
-    vendor_id = models.PositiveSmallIntegerField()
-    date_of_vend = models.DateTimeField(default=timezone.now)
+@receiver(post_save, sender=Batch)
+def send_generation_report(sender, **kwargs):
+    instance = kwargs['instance']
+
+    VOUCHER_TYPE_DICT = {
+        'STD': 'Standard',
+        'INS': 'Instant'
+    }
+
+    username = instance.user.username
+    if instance.user.first_name:
+        username = instance.user.get_full_name()
+
+    context = {
+        'username': username,
+        'batch_id': instance.id,
+        'voucher_type': VOUCHER_TYPE_DICT[instance.voucher_type],
+        'quantity': instance.quantity,
+        'value': str(instance.value) + ' GHS',
+        'total_value': str(Decimal(instance.value) * int(instance.quantity)) + ' GHS'
+    }
+
+    send_report(context)
 
 class Common(models.Model):
     class Meta:
         abstract = True
 
-    value = models.PositiveSmallIntegerField()
+    value = models.DecimalField(max_digits=4, decimal_places=2)
     date_created = models.DateTimeField(default=timezone.now)
     is_valid = models.BooleanField(default=True)
     is_sold = models.BooleanField(default=False)
     sold_to = models.PositiveSmallIntegerField(null=True)
     batch = models.ForeignKey(Batch)
-    vend = models.ForeignKey(Vend, null=True)
 
 class VoucherInstant(Common):
     username = models.CharField(max_length=24, unique=True) # e.g.uxuw@spectrawireless.com
@@ -47,12 +78,16 @@ class VoucherStandard(Common):
     ONE = 1
     TWO = 2
     FIVE = 5
+    TEN = 10
+    TWENTY = 20
 
     PRICE_CHOICES = (
         ('', 'Select Price'),
         (ONE, '1 ' + UNIT),
         (TWO, '2 ' + UNIT),
         (FIVE, '5 ' + UNIT),
+        (TEN, '10 ' + UNIT),
+        (TWENTY, '20 ' + UNIT),
     )
 
     # quantity choices

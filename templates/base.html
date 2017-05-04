@@ -47,6 +47,14 @@
       {% block app_body %}
       {% endblock %}
     </div>
+    
+    <script type="text/javascript">
+      $('form').submit(function() {
+        var btn = $(this).find('.btn');
+        btn.text('Wait...');
+        btn.prop('disabled', true);
+      });
+    </script>
 
   </body>
 </html>

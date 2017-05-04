@@ -5,7 +5,9 @@ from django.views.generic import ListView
 from django.utils.decorators import method_decorator
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.conf import settings
+from django.db import IntegrityError
 
 from .models import *
 from .helpers import write_batch, zeropad, get_packages
@@ -16,9 +18,9 @@ def generate(request, template=None, voucher_form=None, redirect_to=None):
     context = {}
     if request.method == "POST":
         if voucher_form == GenerateInstantVoucherForm:
-            form = voucher_form(request.POST, packages=get_packages())
+            form = voucher_form(request.POST, packages=get_packages(), user=request.user)
         else:
-            form = voucher_form(request.POST)
+            form = voucher_form(request.POST, user=request.user)
 
         if form.is_valid():
             form.save()
@@ -50,22 +52,6 @@ def file_generator(_file):
             yield line
 
 @ensure_csrf_cookie
-def sell(request):
-    response = {}
-    if request.method == 'POST':
-        pin = request.POST['pin']
-        voucher = VoucherStandard.objects.get(pin=pin)
-        voucher.is_sold = True
-        voucher.save()
-        voucher.__dict__.pop("_state")
-        voucher.__dict__.pop("date_created")
-        response.update({'code': 200, 'result': voucher.__dict__})
-    else:
-        response.update({'status': 'ok'})
-
-    return JsonResponse(response)
-
-@ensure_csrf_cookie
 def fetch_voucher_values(request):
     voucher_type = request.GET['voucher_type']
     response = {}
@@ -91,108 +77,108 @@ def download(request, pk):
     return response
 
 @ensure_csrf_cookie
-def fetch_vouchers(request):
-    response = {}
+def get(request):
+    ### Receive voucher type and value. Return one voucher that isn't sold.
+    ### Return 404 status and error message if voucher isn't found
+
+    # Parameters:
+    # - value: string e.g '1', '2'
+    # - voucher_type: either 'STD' or 'INS'
+    # Return voucher:
+    # - {'pin': '12345678901234'}
+    # or error:
+    # - {'message': 'Voucher not available.'}, HTTP status: 500
+
     if request.method == 'POST':
-        vendor_id = request.POST['vendor_id']
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
-        quantity = request.POST['quantity']
 
-        # - create a vend entry.
-        vend = Vend.objects.create(vendor_id=vendor_id)
+        model_class_map = {'INS': VoucherInstant, 'STD': VoucherStandard}
+        model = model_class_map[voucher_type]
 
-        # - fetch vouchers based on voucher_type.
-        if voucher_type == 'STD':
-            vouchers = VoucherStandard.objects.filter(value=value).exclude(is_sold=True)[:quantity]
-        elif voucher_type == 'INS':
-            vouchers = VoucherInstant.objects.filter(value=value).exclude(is_sold=True)[:quantity]
-
-        voucher_list = []
-        for v in vouchers:
-            if isinstance(v, VoucherStandard):
-                voucher_list.append([zeropad(v.pk), v.pin])
-            elif isinstance(v, VoucherInstant):
-                voucher_list.append([zeropad(v.pk), v.username, v.password])
-
-            # - set each voucher entry is_sold=True, sold_to=vendor_id and vend=vend.
-            v.is_sold = True
-            v.sold_to = vendor_id
-            v.vend = vend
-            v.save()
-        response.update({'code': 200, 'results': voucher_list})
-    else:
-        response.update({'status': 'ok'})
-
-    return JsonResponse(response)
-
-@ensure_csrf_cookie
-def redeem(request):
-    response = {}
-
-    if request.method == 'POST':
-        pin = request.POST['pin']
-        try:
-            voucher = VoucherStandard.objects.get(pin=pin)
-        except VoucherStandard.DoesNotExist:
-            response.update({'code': 404, 'message': 'Voucher does not exist.'})
+        # Return a list of one voucher
+        voucher_list = model.objects.filter(value=value).exclude(is_valid=False)[:1]
+        if not voucher_list:
+            return JsonResponse({'message': 'Voucher not available.', 'code': 'voucher-unavailable'}, status=404)
         else:
-            if voucher.is_sold:
-                if not voucher.is_valid:
-                    response.update({'code': 500, 'message': 'Voucher has been used.'})
-                else:
-                    response.update({'code': 200, 'value': voucher.value, 'serial_number': voucher.pk})
+            response = {'serial_no': voucher_list[0].pk}
+            if isinstance(voucher_list[0], VoucherInstant):
+                response.update({
+                    'username': voucher_list[0].username,
+                    'password': voucher_list[0].password
+                })
             else:
-                response.update({'code': 500, 'message': 'You cannot use this voucher. It has not been sold.'})
-    else:
-        response.update({'status': 'ok'})
+                response.update({'pin': voucher_list[0].pin})
+            return JsonResponse(response)
 
-    return JsonResponse(response)
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def invalidate(request):
-    response = {}
+    ### Receive voucher id and vendor id. Set voucher.is_valid to False and mark as sold.
+    ### Return success message. 
+
+    # Parameters:
+    # - voucher_id: string e.g '1', '2'
+    # - vendor_id: string e.g '1', '2'
+    # Return success message:
+    # - {'message': 'Voucher invalidated'}
 
     if request.method == 'POST':
-        pk = request.POST['id']
-        voucher = VoucherStandard.objects.get(pk=pk)
+        voucher_id = request.POST['voucher_id']
+        vendor_id = request.POST['vendor_id']
+
+        voucher = VoucherStandard.objects.get(pk=voucher_id)
+
         voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
         voucher.is_valid = False
-        voucher.save()
-        response.update({'code': 200})
-    else:
-        response.update({'status': 'ok'})
+        voucher.sold_to = vendor_id
 
-    return JsonResponse(response)
+        voucher.save()
+        return JsonResponse({'message': 'Voucher invalidated.'})
+
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def insert_stub(request):
-    """ This function is strictly for testing the API. """
-    response = {}
+    ### This function is strictly for testing the API.
+    ### Take in user object, voucher type, username and password
+    ### for instant vouchers and pin for standard vouchers
+    ### Create a batch and a voucher.
+    ### Return voucher.
+
+    # Parameters:
+    # - creator: string
+    # - voucher type: e.g. 'STD', 'INS'
+    # - username: string
+    # - password: string
+    # - pin: string
+    # Return voucher object
+
     if request.method == 'POST':
-        voucher_type = request.POST['voucher_type']
         value = 5
+        quantity = 1
+        creator = request.POST['creator']
+        voucher_type = request.POST['voucher_type']
 
-        batch = Batch.objects.create(value=value, quantity=1, voucher_type=voucher_type)
+        user = User.objects.get(username=creator)
+        batch = Batch.objects.create(user=user, value=value, quantity=quantity, voucher_type=voucher_type)
 
-        if voucher_type=='STD':
+        if voucher_type == 'STD':
             pin = request.POST['pin']
             voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
-            response.update({'code': 200, 'id': voucher.pk, 'pin': voucher.pin})
-        elif voucher_type=='INS':
+            return JsonResponse({'id': voucher.pk, 'pin': voucher.pin})
+        else:
             username = request.POST['username']
             password = request.POST['password']
             voucher = VoucherInstant.objects.create(batch=batch, username=username, password=password, value=value)
-            response.update({'code': 200, 'id': voucher.pk, 'username': voucher.username})
-    else:
-        response.update({'status': 'ok'})
+            return JsonResponse({'id': voucher.pk, 'username': voucher.username})
 
-    return JsonResponse(response)
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def delete_stub(request):
     """ This function is strictly for testing the API. """
-    response = {}
     if request.method == 'POST':
         voucher_type = request.POST['voucher_type']
         pk = request.POST['voucher_id']
@@ -204,8 +190,7 @@ def delete_stub(request):
 
         voucher.batch.delete()
         voucher.delete()
-        response.update({'code': 200})
-    else:
-        response.update({'status': 'ok'})
 
-    return JsonResponse(response)
+        return JsonResponse({'message': 'Success!'})
+
+    return JsonResponse({'status': 'ok'})
