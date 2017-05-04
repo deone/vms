@@ -79,8 +79,8 @@ WSGI_APPLICATION = 'vms.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'vms_master',
-        'USER': 'vms_master',
+        'NAME': 'vms',
+        'USER': 'vms',
         'PASSWORD': 'vmspass',
         'HOST': '127.0.0.1',
         'PORT': '3306'
@@ -121,11 +121,7 @@ LOGIN_REDIRECT_URL = 'vouchers:batches'
 PIN_LENGTH = 14
 VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 
-<<<<<<< HEAD
 BILLING_URL = "https://billing-deone.c9users.io/"
-=======
-BILLING_URL = "http://billing-deone.c9users.io/"
->>>>>>> xwf
 PACKAGES_URL = BILLING_URL + "packages/"
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
