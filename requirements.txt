@@ -1,0 +1,4 @@
+coverage==4.2
+Django==1.8.5
+MySQL-python==1.2.5
+requests==2.9.1
