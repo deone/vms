@@ -8,13 +8,13 @@ https://docs.djangoproject.com/en/1.8/howto/deployment/wsgi/
 """
 
 import os
-import socket
-
-env = socket.gethostname()
 
 from django.core.wsgi import get_wsgi_application
 
-settings_file = "vms.settings_" + env
+if 'test' in os.getcwd():
+    settings_file = 'vms.settings_test'
+else:
+    settings_file = 'vms.settings_production'
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_file)
 
