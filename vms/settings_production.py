@@ -2,9 +2,6 @@ from settings import *
 
 DEBUG = False
 
-IP = '154.117.12.5'
-ALLOWED_HOSTS = [IP]
-
 # Billing settings
 BILLING_URL = "http://154.117.8.21/"
 PACKAGES_URL = BILLING_URL + "packages/"

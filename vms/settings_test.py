@@ -1,8 +1,5 @@
 from settings import *
 
-IP = '154.117.12.5'
-ALLOWED_HOSTS = [IP]
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
