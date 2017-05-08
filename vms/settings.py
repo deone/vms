@@ -121,7 +121,7 @@ LOGIN_REDIRECT_URL = 'vouchers:batches'
 PIN_LENGTH = 14
 VOUCHER_DOWNLOAD_PATH = os.path.join(BASE_DIR, 'downloads')
 
-BILLING_URL = "http://billing-deone.c9users.io/"
+BILLING_URL = 'http://billing-v1-deone.c9users.io/'
 PACKAGES_URL = BILLING_URL + "packages/"
 PACKAGE_INSERT_URL = PACKAGES_URL + "insert/"
 PACKAGE_DELETE_URL = PACKAGES_URL + "delete/"
