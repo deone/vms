@@ -125,10 +125,14 @@ def invalidate(request):
     # - {'message': 'Voucher invalidated'}
 
     if request.method == 'POST':
+        voucher_type = request.POST['voucher_type']
         voucher_id = request.POST['voucher_id']
         vendor_id = request.POST['vendor_id']
 
-        voucher = VoucherStandard.objects.get(pk=voucher_id)
+        if voucher_type == 'STD':
+            voucher = VoucherStandard.objects.get(pk=voucher_id)
+        else:
+            voucher = VoucherInstant.objects.get(pk=voucher_id)
 
         voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
         voucher.is_valid = False
