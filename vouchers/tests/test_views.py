@@ -148,7 +148,7 @@ class APITests(TestCase):
         self.check_response(response)
 
     def test_invalidate_post(self):
-        response = self.c.post(reverse('vouchers:invalidate'), data={'voucher_id': self.voucher['id'], 'vendor_id': '1'})
+        response = self.c.post(reverse('vouchers:invalidate'), data={'voucher_id': self.voucher['id'], 'vendor_id': '1', 'voucher_type': 'STD'})
         value = json.loads(response.content)
         self.assertEqual(value['message'], 'Voucher invalidated.')
 
