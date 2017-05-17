@@ -133,11 +133,14 @@ class ViewsTests(TestCase):
 class APITests(TestCase):
 
     def setUp(self):
-        # Create stub
+        # Create test voucher
         self.c = Client()
-        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-        self.data = {'creator': self.user.username, 'pin': '12345678901234', 'voucher_type': 'STD'}
-        self.voucher = json.loads(self.c.post(reverse('vouchers:create_test'), data=self.data).content)
+
+        self.user_data = {'username': 'z@z.com'}
+        self.user = json.loads(self.c.post(reverse('vouchers:create_test_user'), data=self.user_data).content)
+
+        self.voucher_data = {'creator': self.user['username'], 'pin': '12345678901234', 'voucher_type': 'STD'}
+        self.voucher = json.loads(self.c.post(reverse('vouchers:create_test_voucher'), data=self.voucher_data).content)
 
     def check_response(self, response):
         value = json.loads(response.content)
@@ -153,17 +156,17 @@ class APITests(TestCase):
         self.assertEqual(value['message'], 'Voucher invalidated.')
 
     def test_create_test_voucher_get(self):
-        response = self.c.get(reverse('vouchers:create_test'))
+        response = self.c.get(reverse('vouchers:create_test_voucher'))
         self.check_response(response)
 
     def test_delete_test_voucher_get(self):
-        response = self.c.get(reverse('vouchers:delete_test'))
+        response = self.c.get(reverse('vouchers:delete_test_voucher'))
         self.check_response(response)
 
     def tearDown(self):
-        # Delete stub
-        self.c.post(reverse('vouchers:delete_test'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
-        self.user.delete()
+        # Delete test voucher
+        self.c.post(reverse('vouchers:delete_test_voucher'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
+        self.c.post(reverse('vouchers:delete_test_user'), data={'username': self.user['username']})
 
 class VoucherGetTests(TestCase):
 
@@ -243,7 +246,7 @@ class InstantVoucherTests(TestCase):
     def setUp(self):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-        self.response = self.c.post(reverse('vouchers:create_test'),
+        self.response = self.c.post(reverse('vouchers:create_test_voucher'),
             data={'creator': self.user.username, 'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
         self.voucher = json.loads(self.response.content)
 
@@ -251,7 +254,7 @@ class InstantVoucherTests(TestCase):
         self.assertEqual(self.voucher['username'], 'a@a.com')
 
     def test_delete_test_voucher(self):
-        response = self.c.post(reverse('vouchers:delete_test'),
+        response = self.c.post(reverse('vouchers:delete_test_voucher'),
             data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
         value = json.loads(response.content)
 

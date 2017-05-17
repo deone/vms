@@ -145,16 +145,33 @@ def invalidate(request):
 
 @ensure_csrf_cookie
 def create_test_user(request):
-    pass
+    ### This function is strictly for testing the API.
+    ### Take in a username and create a user.
+    ### Return user.
+
+    # Parameters:
+    # - username: string
+    if request.method == 'POST':
+        username = request.POST['username']
+        user = User.objects.create_user(username, username, '12345')
+        return JsonResponse({'username': user.username})
+
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
 def delete_test_user(request):
-    pass
+    if request.method == 'POST':
+        username = request.POST['username']
+        user = User.objects.get(username=username)
+        user.delete()
+        return JsonResponse({'message': 'Success!'})
+
+    return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
-def create_test(request):
+def create_test_voucher(request):
     ### This function is strictly for testing the API.
-    ### Take in user object, voucher type, username and password
+    ### Take in voucher creator username, voucher type, username and password
     ### for instant vouchers and pin for standard vouchers
     ### Create a batch and a voucher.
     ### Return voucher.
@@ -189,7 +206,7 @@ def create_test(request):
     return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
-def delete_test(request):
+def delete_test_voucher(request):
     """ This function is strictly for testing the API. """
     if request.method == 'POST':
         voucher_type = request.POST['voucher_type']
