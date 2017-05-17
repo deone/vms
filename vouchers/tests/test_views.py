@@ -261,14 +261,14 @@ class VoucherGetTests(TestCase):
         response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(value['results'], ['1.00', '2.00', '5.00'])
 
     def test_fetch_instant_voucher_values(self):
         response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'INS'})
         value = json.loads(response.content)
 
-        self.assertEqual(value['code'], 200)
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(value['results'], ['2.00'])
 
 class InstantVoucherTests(TestCase):

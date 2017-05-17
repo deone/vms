@@ -13,6 +13,8 @@ from .models import *
 from .helpers import get_packages
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
+MODEL_VOUCHER_TYPE_MAP = {'INS': VoucherInstant, 'STD': VoucherStandard}
+
 @login_required
 def generate(request, template=None, voucher_form=None, redirect_to=None):
     context = {}
@@ -51,13 +53,10 @@ def fetch_voucher_values(request):
     voucher_type = request.GET['voucher_type']
     response = {}
 
-    if voucher_type == 'STD':
-        values = set(a.value for a in VoucherStandard.objects.filter(is_sold=False))
-    elif voucher_type == 'INS':
-        values = set(a.value for a in VoucherInstant.objects.filter(is_sold=False))
+    model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
+    values = set(a.value for a in model.objects.filter(is_sold=False))
 
-    response.update({'code': 200, 'results': list(values)})
-    return JsonResponse(response)
+    return JsonResponse({'results': list(values)})
 
 @ensure_csrf_cookie
 def get(request):
@@ -76,8 +75,7 @@ def get(request):
         voucher_type = request.POST['voucher_type']
         value = request.POST['value']
 
-        model_class_map = {'INS': VoucherInstant, 'STD': VoucherStandard}
-        model = model_class_map[voucher_type]
+        model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
 
         # Return a list of one voucher
         voucher_list = model.objects.filter(value=value).exclude(is_valid=False)[:1]
@@ -195,9 +193,7 @@ def delete_test_voucher(request):
         voucher_type = request.POST['voucher_type']
         pk = request.POST['voucher_id']
 
-        model = VoucherStandard
-        if voucher_type == 'INS':
-            model = VoucherInstant
+        model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
 
         try:
             voucher = model.objects.get(pk=pk)
