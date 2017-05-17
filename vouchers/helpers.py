@@ -46,7 +46,3 @@ def generate_standard_vouchers(price, quantity, batch):
         VoucherStandard.objects.create(pin=pin, value=price, batch=batch)
 
     return True
-
-def zeropad(num):
-    num = str(num)
-    return ('0' * (10 - len(num))) + num

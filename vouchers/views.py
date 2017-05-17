@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import IntegrityError
 
 from .models import *
-from .helpers import zeropad, get_packages
+from .helpers import get_packages
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
 @login_required
@@ -45,11 +45,6 @@ class BatchList(ListView):
     def get(self, request, *args, **kwargs):
         batches = Batch.objects.all()
         return render(request, self.template_name, {'batches': batches})
-
-def file_generator(_file):
-    with open(_file.name, 'r') as f:
-        for line in f:
-            yield line
 
 @ensure_csrf_cookie
 def fetch_voucher_values(request):
