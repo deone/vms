@@ -163,6 +163,14 @@ class APITests(TestCase):
         response = self.c.get(reverse('vouchers:delete_test_voucher'))
         self.check_response(response)
 
+    def test_create_test_user_get(self):
+        response = self.c.get(reverse('vouchers:create_test_user'))
+        self.check_response(response)
+
+    def test_delete_test_user_get(self):
+        response = self.c.get(reverse('vouchers:delete_test_user'))
+        self.check_response(response)
+
     def tearDown(self):
         # Delete test voucher
         self.c.post(reverse('vouchers:delete_test_voucher'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
