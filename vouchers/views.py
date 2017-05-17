@@ -162,8 +162,12 @@ def create_test_user(request):
 def delete_test_user(request):
     if request.method == 'POST':
         username = request.POST['username']
-        user = User.objects.get(username=username)
-        user.delete()
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            pass
+        else:
+            user.delete()
         return JsonResponse({'message': 'Success!'})
 
     return JsonResponse({'status': 'ok'})
@@ -212,13 +216,16 @@ def delete_test_voucher(request):
         voucher_type = request.POST['voucher_type']
         pk = request.POST['voucher_id']
 
+        model = VoucherStandard
         if voucher_type == 'INS':
-            voucher = VoucherInstant.objects.get(pk=pk)
-        elif voucher_type == 'STD':
-            voucher = VoucherStandard.objects.get(pk=pk)
+            model = VoucherInstant
 
-        voucher.batch.delete()
-        voucher.delete()
+        try:
+            voucher = model.objects.get(pk=pk)
+        except model.DoesNotExist:
+            pass
+        else:
+            voucher.delete()
 
         return JsonResponse({'message': 'Success!'})
 

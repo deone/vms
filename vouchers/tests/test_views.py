@@ -139,41 +139,75 @@ class APITests(TestCase):
         self.user_data = {'username': 'z@z.com'}
         self.user = json.loads(self.c.post(reverse('vouchers:create_test_user'), data=self.user_data).content)
 
-        self.voucher_data = {'creator': self.user['username'], 'pin': '12345678901234', 'voucher_type': 'STD'}
-        self.voucher = json.loads(self.c.post(reverse('vouchers:create_test_voucher'), data=self.voucher_data).content)
+        # Standard
+        std_voucher_data = {'creator': self.user['username'], 'pin': '12345678901234', 'voucher_type': 'STD'}
+        self.std_voucher = json.loads(self.c.post(reverse('vouchers:create_test_voucher'), data=std_voucher_data).content)
+
+        # Instant
+        ins_voucher_data = {'creator': self.user['username'], 'username': 'a@pty.gh', 'password': 'CTYB', 'voucher_type': 'INS'}
+        self.ins_voucher = json.loads(self.c.post(reverse('vouchers:create_test_voucher'), data=ins_voucher_data).content)
 
     def check_response(self, response):
         value = json.loads(response.content)
         self.assertEqual(value['status'], 'ok')
 
-    def test_invalidate_get(self):
+    def test_invalidate(self):
         response = self.c.get(reverse('vouchers:invalidate'))
         self.check_response(response)
 
-    def test_invalidate_post(self):
-        response = self.c.post(reverse('vouchers:invalidate'), data={'voucher_id': self.voucher['id'], 'vendor_id': '1', 'voucher_type': 'STD'})
+        # Invalidate standard voucher
+        response = self.c.post(reverse('vouchers:invalidate'), data={
+            'voucher_id': self.std_voucher['id'],
+            'vendor_id': '1',
+            'voucher_type': 'STD'
+        })
         value = json.loads(response.content)
         self.assertEqual(value['message'], 'Voucher invalidated.')
 
-    def test_create_test_voucher_get(self):
-        response = self.c.get(reverse('vouchers:create_test_voucher'))
-        self.check_response(response)
+        # Invalidate instant voucher
+        response = self.c.post(reverse('vouchers:invalidate'), data={
+            'voucher_id': self.ins_voucher['id'],
+            'vendor_id': '1',
+            'voucher_type': 'INS'
+        })
 
-    def test_delete_test_voucher_get(self):
-        response = self.c.get(reverse('vouchers:delete_test_voucher'))
-        self.check_response(response)
-
-    def test_create_test_user_get(self):
+    def test_create_test_voucher(self):
         response = self.c.get(reverse('vouchers:create_test_user'))
         self.check_response(response)
 
-    def test_delete_test_user_get(self):
+        response = self.c.get(reverse('vouchers:create_test_voucher'))
+        self.check_response(response)
+
+        std_voucher = VoucherStandard.objects.get(pin='12345678901234')
+        ins_voucher = VoucherInstant.objects.get(username='a@pty.gh')
+
+        self.assertEqual(std_voucher.batch.user.username, self.user['username'])
+        self.assertEqual(ins_voucher.batch.user.username, self.user['username'])
+
+    def test_delete_test_voucher(self):
+        response = self.c.get(reverse('vouchers:delete_test_voucher'))
+        self.check_response(response)
+
+        # Delete standard voucher
+        response = json.loads(self.c.post(reverse('vouchers:delete_test_voucher'), data={
+            'voucher_id': self.std_voucher['id'],
+            'voucher_type': 'STD'
+        }).content)
+        self.assertEqual(response['message'], 'Success!')
+
+        response = json.loads(self.c.post(reverse('vouchers:delete_test_voucher'), data={
+            'voucher_id': self.ins_voucher['id'],
+            'voucher_type': 'INS'
+        }).content)
+        self.assertEqual(response['message'], 'Success!')
+
         response = self.c.get(reverse('vouchers:delete_test_user'))
         self.check_response(response)
 
     def tearDown(self):
         # Delete test voucher
-        self.c.post(reverse('vouchers:delete_test_voucher'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
+        self.c.post(reverse('vouchers:delete_test_voucher'), data={'voucher_id': self.std_voucher['id'], 'voucher_type': 'STD'})
+        self.c.post(reverse('vouchers:delete_test_voucher'), data={'voucher_id': self.ins_voucher['id'], 'voucher_type': 'INS'})
         self.c.post(reverse('vouchers:delete_test_user'), data={'username': self.user['username']})
 
 class VoucherGetTests(TestCase):
