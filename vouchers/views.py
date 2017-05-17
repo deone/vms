@@ -144,7 +144,15 @@ def invalidate(request):
     return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
-def insert_stub(request):
+def create_test_user(request):
+    pass
+
+@ensure_csrf_cookie
+def delete_test_user(request):
+    pass
+
+@ensure_csrf_cookie
+def create_test(request):
     ### This function is strictly for testing the API.
     ### Take in user object, voucher type, username and password
     ### for instant vouchers and pin for standard vouchers
@@ -181,7 +189,7 @@ def insert_stub(request):
     return JsonResponse({'status': 'ok'})
 
 @ensure_csrf_cookie
-def delete_stub(request):
+def delete_test(request):
     """ This function is strictly for testing the API. """
     if request.method == 'POST':
         voucher_type = request.POST['voucher_type']

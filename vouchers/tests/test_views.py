@@ -137,7 +137,7 @@ class APITests(TestCase):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
         self.data = {'creator': self.user.username, 'pin': '12345678901234', 'voucher_type': 'STD'}
-        self.voucher = json.loads(self.c.post(reverse('vouchers:insert'), data=self.data).content)
+        self.voucher = json.loads(self.c.post(reverse('vouchers:create_test'), data=self.data).content)
 
     def check_response(self, response):
         value = json.loads(response.content)
@@ -152,17 +152,17 @@ class APITests(TestCase):
         value = json.loads(response.content)
         self.assertEqual(value['message'], 'Voucher invalidated.')
 
-    def test_insert_stub_get(self):
-        response = self.c.get(reverse('vouchers:insert'))
+    def test_create_test_voucher_get(self):
+        response = self.c.get(reverse('vouchers:create_test'))
         self.check_response(response)
 
-    def test_delete_stub_get(self):
-        response = self.c.get(reverse('vouchers:delete'))
+    def test_delete_test_voucher_get(self):
+        response = self.c.get(reverse('vouchers:delete_test'))
         self.check_response(response)
 
     def tearDown(self):
         # Delete stub
-        self.c.post(reverse('vouchers:delete'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
+        self.c.post(reverse('vouchers:delete_test'), data={'voucher_id': self.voucher['id'], 'voucher_type': 'STD'})
         self.user.delete()
 
 class VoucherGetTests(TestCase):
@@ -243,15 +243,15 @@ class InstantVoucherTests(TestCase):
     def setUp(self):
         self.c = Client()
         self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-        self.response = self.c.post(reverse('vouchers:insert'),
+        self.response = self.c.post(reverse('vouchers:create_test'),
             data={'creator': self.user.username, 'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
         self.voucher = json.loads(self.response.content)
 
-    def test_insert_stub(self):
+    def test_create_test_voucher(self):
         self.assertEqual(self.voucher['username'], 'a@a.com')
 
-    def test_delete_stub(self):
-        response = self.c.post(reverse('vouchers:delete'),
+    def test_delete_test_voucher(self):
+        response = self.c.post(reverse('vouchers:delete_test'),
             data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
         value = json.loads(response.content)
 
