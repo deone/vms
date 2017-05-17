@@ -118,18 +118,6 @@ class ViewsTests(TestCase):
         self.assertTrue('batches' in response.context)
         self.assertTemplateUsed(response, 'vouchers/batch_list.html')
 
-    def test_download(self):
-        price = 1
-        quantity = 5
-        batch = Batch.objects.create(user=self.user, value=price, quantity=quantity, voucher_type='STD')
-        generate_standard_vouchers(price, quantity, batch)
-
-        self.c.post(reverse('login'), {'username': 'z@z.com', 'password': '12345'})
-        response = self.c.get(reverse('vouchers:download', kwargs={'pk': batch.pk}))
-
-        self.assertEqual(response['Content-Type'], 'text/plain')
-        self.assertNotEqual(response.content, '')
-
 class APITests(TestCase):
 
     def setUp(self):

@@ -4,7 +4,6 @@ from . import views
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
 urlpatterns = [
-    url(r'^download/(?P<pk>\d+)/$', views.download, name='download'),
     url(r'^generate/standard/$', views.generate,
     {
         'template': 'vouchers/generate_standard.html',

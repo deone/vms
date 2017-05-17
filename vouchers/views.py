@@ -10,7 +10,7 @@ from django.conf import settings
 from django.db import IntegrityError
 
 from .models import *
-from .helpers import write_batch, zeropad, get_packages
+from .helpers import zeropad, get_packages
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
 
 @login_required
@@ -63,18 +63,6 @@ def fetch_voucher_values(request):
 
     response.update({'code': 200, 'results': list(values)})
     return JsonResponse(response)
-
-@login_required
-def download(request, pk):
-    batch = Batch.objects.get(pk=pk)
-    _file, file_name = write_batch(batch)
-
-    batch.is_downloaded = True
-    batch.save()
-
-    response = HttpResponse(file_generator(_file), content_type='text/plain')
-    response['Content-Disposition'] = 'attachment; filename="%s"' % file_name
-    return response
 
 @ensure_csrf_cookie
 def get(request):
