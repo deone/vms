@@ -162,12 +162,8 @@ def create_test_user(request):
 def delete_test_user(request):
     if request.method == 'POST':
         username = request.POST['username']
-        try:
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            pass
-        else:
-            user.delete()
+        user = User.objects.get(username=username)
+        user.delete()
         return JsonResponse({'message': 'Success!'})
 
     return JsonResponse({'status': 'ok'})
