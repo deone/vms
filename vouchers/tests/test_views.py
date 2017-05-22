@@ -270,22 +270,3 @@ class VoucherGetTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(value['results'], ['2.00'])
-
-class InstantVoucherTests(TestCase):
-
-    def setUp(self):
-        self.c = Client()
-        self.user = User.objects.create_user('z@z.com', 'z@z.com', '12345')
-        self.response = self.c.post(reverse('vouchers:create_test_voucher'),
-            data={'creator': self.user.username, 'voucher_type': 'INS', 'username': 'a@a.com', 'password': '12345'})
-        self.voucher = json.loads(self.response.content)
-
-    def test_create_test_voucher(self):
-        self.assertEqual(self.voucher['username'], 'a@a.com')
-
-    def test_delete_test_voucher(self):
-        response = self.c.post(reverse('vouchers:delete_test_voucher'),
-            data={'voucher_type': 'INS', 'voucher_id': self.voucher['id']})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['message'], 'Success!')
