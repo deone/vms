@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^logout/$', auth_views.logout, {'next_page': '/'}, name='logout'),
     url(r'^vouchers/', include('vouchers.urls', namespace="vouchers")),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]

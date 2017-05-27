@@ -25,7 +25,7 @@ SECRET_KEY = '8iywr$32khjsv^4aby&o_)jv2e84ehb=i^djt8j93i8ua!f&^1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['vendor-deone.c9users.io', '154.117.12.5']
+ALLOWED_HOSTS = ['vms-deone.c9users.io', '154.117.12.5']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'accounts',
     'vouchers',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -142,3 +143,11 @@ EMAIL_USE_TLS = True
 
 # Report recipients
 VOUCHER_GEN_REPORT_TO = ['alwaysdeone@gmail.com']
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
