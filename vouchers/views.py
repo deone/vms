@@ -9,6 +9,9 @@ from django.contrib.auth.models import User
 from django.conf import settings
 from django.db import IntegrityError
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
 from .models import *
 from .helpers import get_packages
 from .forms import GenerateStandardVoucherForm, GenerateInstantVoucherForm
@@ -47,16 +50,6 @@ class BatchList(ListView):
     def get(self, request, *args, **kwargs):
         batches = Batch.objects.all()
         return render(request, self.template_name, {'batches': batches})
-
-@ensure_csrf_cookie
-def fetch_voucher_values(request):
-    voucher_type = request.GET['voucher_type']
-    response = {}
-
-    model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
-    values = set(a.value for a in model.objects.filter(is_sold=False))
-
-    return JsonResponse({'results': list(values)})
 
 @ensure_csrf_cookie
 def get(request):
@@ -205,3 +198,10 @@ def delete_test_voucher(request):
         return JsonResponse({'message': 'Success!'})
 
     return JsonResponse({'status': 'ok'})
+
+class VoucherValuesList(APIView):
+    def get(self, request, format=None):
+        voucher_type = request.GET['voucher_type']
+        model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
+        values = set(a.value for a in model.objects.filter(is_sold=False))
+        return Response(values)

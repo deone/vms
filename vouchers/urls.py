@@ -25,5 +25,5 @@ urlpatterns = [
     url(r'^delete_test_voucher$', views.delete_test_voucher, name='delete_test_voucher'),
     url(r'^invalidate$', views.invalidate, name='invalidate'),
     url(r'^get$', views.get, name='get_voucher'),
-    url(r'^values/$', views.fetch_voucher_values, name='fetch_voucher_values'),
+    url(r'^values$', views.VoucherValuesList.as_view()),
 ]
