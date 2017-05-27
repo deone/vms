@@ -135,14 +135,7 @@ class APITests(TestCase):
         ins_voucher_data = {'creator': self.user['username'], 'username': 'a@pty.gh', 'password': 'CTYB', 'voucher_type': 'INS'}
         self.ins_voucher = json.loads(self.c.post(reverse('vouchers:create_test_voucher'), data=ins_voucher_data).content)
 
-    def check_response(self, response):
-        value = json.loads(response.content)
-        self.assertEqual(value['status'], 'ok')
-
     def test_invalidate(self):
-        response = self.c.get(reverse('vouchers:invalidate'))
-        self.check_response(response)
-
         # Invalidate standard voucher
         response = self.c.post(reverse('vouchers:invalidate'), data={
             'voucher_id': self.std_voucher['id'],
@@ -160,12 +153,6 @@ class APITests(TestCase):
         })
 
     def test_create_test_voucher(self):
-        response = self.c.get(reverse('vouchers:create_test_user'))
-        self.check_response(response)
-
-        response = self.c.get(reverse('vouchers:create_test_voucher'))
-        self.check_response(response)
-
         std_voucher = VoucherStandard.objects.get(pin='12345678901234')
         ins_voucher = VoucherInstant.objects.get(username='a@pty.gh')
 
@@ -173,9 +160,6 @@ class APITests(TestCase):
         self.assertEqual(ins_voucher.batch.user.username, self.user['username'])
 
     def test_delete_test_voucher(self):
-        response = self.c.get(reverse('vouchers:delete_test_voucher'))
-        self.check_response(response)
-
         # Delete standard voucher
         response = json.loads(self.c.post(reverse('vouchers:delete_test_voucher'), data={
             'voucher_id': self.std_voucher['id'],
@@ -188,9 +172,6 @@ class APITests(TestCase):
             'voucher_type': 'INS'
         }).content)
         self.assertEqual(response['message'], 'Success!')
-
-        response = self.c.get(reverse('vouchers:delete_test_user'))
-        self.check_response(response)
 
     def tearDown(self):
         # Delete test voucher
@@ -249,24 +230,18 @@ class VoucherGetTests(TestCase):
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(value, {'message': 'Voucher not available.', 'code': 'voucher-unavailable'})
-
-    def test_get_voucher_get(self):
-        response = self.c.get(reverse('vouchers:get_voucher'), {'voucher_type': 'STD'})
-        value = json.loads(response.content)
-
-        self.assertEqual(value['status'], 'ok')
+        self.assertEqual(value, {'message': 'Voucher not available.'})
 
     def test_fetch_standard_voucher_values(self):
-        response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'STD'})
+        response = self.c.get(('/vouchers/values'), {'voucher_type': 'STD'})
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value['results'], ['1.00', '2.00', '5.00'])
+        self.assertEqual(value, [1.0, 2.0, 5.0])
 
     def test_fetch_instant_voucher_values(self):
-        response = self.c.get(reverse('vouchers:fetch_voucher_values'), {'voucher_type': 'INS'})
+        response = self.c.get(('/vouchers/values'), {'voucher_type': 'INS'})
         value = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(value['results'], ['2.00'])
+        self.assertEqual(value, [2.0])

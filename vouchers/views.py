@@ -1,16 +1,15 @@
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
-from django.views.generic import ListView
-from django.utils.decorators import method_decorator
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.conf import settings
+from django.contrib import messages
 from django.db import IntegrityError
+from django.views.generic import ListView
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 from .models import *
 from .helpers import get_packages
@@ -51,7 +50,7 @@ class BatchList(ListView):
         batches = Batch.objects.all()
         return render(request, self.template_name, {'batches': batches})
 
-@ensure_csrf_cookie
+@api_view(['POST'])
 def get(request):
     ### Receive voucher type and value. Return one voucher that isn't sold.
     ### Return 404 status and error message if voucher isn't found
@@ -64,30 +63,27 @@ def get(request):
     # or error:
     # - {'message': 'Voucher not available.'}, HTTP status: 500
 
-    if request.method == 'POST':
-        voucher_type = request.POST['voucher_type']
-        value = request.POST['value']
+    voucher_type = request.POST['voucher_type']
+    value = request.POST['value']
 
-        model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
+    model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
 
-        # Return a list of one voucher
-        voucher_list = model.objects.filter(value=value).exclude(is_valid=False)[:1]
-        if not voucher_list:
-            return JsonResponse({'message': 'Voucher not available.', 'code': 'voucher-unavailable'}, status=404)
+    # Return a list of one voucher
+    voucher_list = model.objects.filter(value=value).exclude(is_valid=False)[:1]
+    if not voucher_list:
+        return Response({'message': 'Voucher not available.'}, status=404)
+    else:
+        response = {'serial_no': voucher_list[0].pk}
+        if isinstance(voucher_list[0], VoucherInstant):
+            response.update({
+                'username': voucher_list[0].username,
+                'password': voucher_list[0].password
+            })
         else:
-            response = {'serial_no': voucher_list[0].pk}
-            if isinstance(voucher_list[0], VoucherInstant):
-                response.update({
-                    'username': voucher_list[0].username,
-                    'password': voucher_list[0].password
-                })
-            else:
-                response.update({'pin': voucher_list[0].pin})
-            return JsonResponse(response)
+            response.update({'pin': voucher_list[0].pin})
+        return Response(response)
 
-    return JsonResponse({'status': 'ok'})
-
-@ensure_csrf_cookie
+@api_view(['POST'])
 def invalidate(request):
     ### Receive voucher id and vendor id. Set voucher.is_valid to False and mark as sold.
     ### Return success message. 
@@ -98,26 +94,23 @@ def invalidate(request):
     # Return success message:
     # - {'message': 'Voucher invalidated'}
 
-    if request.method == 'POST':
-        voucher_type = request.POST['voucher_type']
-        voucher_id = request.POST['voucher_id']
-        vendor_id = request.POST['vendor_id']
+    voucher_type = request.POST['voucher_type']
+    voucher_id = request.POST['voucher_id']
+    vendor_id = request.POST['vendor_id']
 
-        if voucher_type == 'STD':
-            voucher = VoucherStandard.objects.get(pk=voucher_id)
-        else:
-            voucher = VoucherInstant.objects.get(pk=voucher_id)
+    if voucher_type == 'STD':
+        voucher = VoucherStandard.objects.get(pk=voucher_id)
+    else:
+        voucher = VoucherInstant.objects.get(pk=voucher_id)
 
-        voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
-        voucher.is_valid = False
-        voucher.sold_to = vendor_id
+    voucher.is_sold = True # We are adding this for testing purposes. Normally, a voucher that has to be invalidated would have been sold.
+    voucher.is_valid = False
+    voucher.sold_to = vendor_id
 
-        voucher.save()
-        return JsonResponse({'message': 'Voucher invalidated.'})
+    voucher.save()
+    return Response({'message': 'Voucher invalidated.'})
 
-    return JsonResponse({'status': 'ok'})
-
-@ensure_csrf_cookie
+@api_view(['POST'])
 def create_test_user(request):
     ### This function is strictly for testing the API.
     ### Take in a username and create a user.
@@ -125,24 +118,18 @@ def create_test_user(request):
 
     # Parameters:
     # - username: string
-    if request.method == 'POST':
-        username = request.POST['username']
-        user = User.objects.create_user(username, username, '12345')
-        return JsonResponse({'username': user.username})
+    username = request.POST['username']
+    user = User.objects.create_user(username, username, '12345')
+    return Response({'username': user.username})
 
-    return JsonResponse({'status': 'ok'})
-
-@ensure_csrf_cookie
+@api_view(['POST'])
 def delete_test_user(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        user = User.objects.get(username=username)
-        user.delete()
-        return JsonResponse({'message': 'Success!'})
+    username = request.POST['username']
+    user = User.objects.get(username=username)
+    user.delete()
+    return Response({'message': 'Success!'})
 
-    return JsonResponse({'status': 'ok'})
-
-@ensure_csrf_cookie
+@api_view(['POST'])
 def create_test_voucher(request):
     ### This function is strictly for testing the API.
     ### Take in voucher creator username, voucher type, username and password
@@ -158,46 +145,40 @@ def create_test_voucher(request):
     # - pin: string
     # Return voucher object
 
-    if request.method == 'POST':
-        value = 5
-        quantity = 1
-        creator = request.POST['creator']
-        voucher_type = request.POST['voucher_type']
+    value = 5
+    quantity = 1
+    creator = request.POST['creator']
+    voucher_type = request.POST['voucher_type']
 
-        user = User.objects.get(username=creator)
-        batch = Batch.objects.create(user=user, value=value, quantity=quantity, voucher_type=voucher_type)
+    user = User.objects.get(username=creator)
+    batch = Batch.objects.create(user=user, value=value, quantity=quantity, voucher_type=voucher_type)
 
-        if voucher_type == 'STD':
-            pin = request.POST['pin']
-            voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
-            return JsonResponse({'id': voucher.pk, 'pin': voucher.pin})
-        else:
-            username = request.POST['username']
-            password = request.POST['password']
-            voucher = VoucherInstant.objects.create(batch=batch, username=username, password=password, value=value)
-            return JsonResponse({'id': voucher.pk, 'username': voucher.username})
+    if voucher_type == 'STD':
+        pin = request.POST['pin']
+        voucher = VoucherStandard.objects.create(pin=pin, value=value, batch=batch)
+        return Response({'id': voucher.pk, 'pin': voucher.pin})
+    else:
+        username = request.POST['username']
+        password = request.POST['password']
+        voucher = VoucherInstant.objects.create(batch=batch, username=username, password=password, value=value)
+        return Response({'id': voucher.pk, 'username': voucher.username})
 
-    return JsonResponse({'status': 'ok'})
-
-@ensure_csrf_cookie
+@api_view(['POST'])
 def delete_test_voucher(request):
     """ This function is strictly for testing the API. """
-    if request.method == 'POST':
-        voucher_type = request.POST['voucher_type']
-        pk = request.POST['voucher_id']
+    voucher_type = request.POST['voucher_type']
+    pk = request.POST['voucher_id']
 
-        model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
+    model = MODEL_VOUCHER_TYPE_MAP[voucher_type]
 
-        try:
-            voucher = model.objects.get(pk=pk)
-        except model.DoesNotExist:
-            pass
-        else:
-            voucher.delete()
+    try:
+        voucher = model.objects.get(pk=pk)
+    except model.DoesNotExist:
+        pass
+    else:
+        voucher.delete()
 
-        return JsonResponse({'message': 'Success!'})
-
-    return JsonResponse({'status': 'ok'})
+    return Response({'message': 'Success!'})
 
 class VoucherValuesList(APIView):
     def get(self, request, format=None):
