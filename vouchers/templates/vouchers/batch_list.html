@@ -49,16 +49,6 @@
           Instant
         {% endifequal %}
       </td>
-      <!-- <td>
-        <form action="{% url 'vouchers:download' pk=batch.pk %}" method="post">
-          {% csrf_token %}
-          {% if batch.is_downloaded %}
-            <button type="submit" class="btn btn-xs btn-primary" disabled>Downloaded</button>
-          {% else %}
-            <button type="submit" class="btn btn-xs btn-primary">Download</button>
-          {% endif %}
-        </form>
-      </td> -->
     </tr>
     {% endfor %}
   </tbody>
