@@ -25,7 +25,7 @@ SECRET_KEY = '8iywr$32khjsv^4aby&o_)jv2e84ehb=i^djt8j93i8ua!f&^1'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['vms-deone.c9users.io', '154.117.12.5']
+ALLOWED_HOSTS = ['vms-deone.c9users.io', '154.117.8.18']
 
 
 # Application definition
