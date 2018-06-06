@@ -134,12 +134,10 @@ USERNAME_LENGTH = 4
 PASSWORD_LENGTH = 4
 
 # Email settings
-DEFAULT_FROM_EMAIL = 'Spectra VMS<incisiaappmailer@gmail.com>'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = 'incisiaappmailer@gmail.com'
-EMAIL_HOST_PASSWORD = '#$gh78@%'
-EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.webfaction.com'
+EMAIL_HOST_USER = 'deone'
+EMAIL_HOST_PASSWORD = '@dune369'
+SERVER_EMAIL = "Cloud Biller<info@cloudbiller.com>"
 
 # Report recipients
 VOUCHER_GEN_REPORT_TO = ['alwaysdeone@gmail.com']
